@@ -14,4 +14,5 @@ message FindSuccessorRequest {
 message FindSuccessorResponse {
 	int32 successorId = 1;
 	int32 pathlen = 2;
+	string addr = 3;
 }
