@@ -22,7 +22,7 @@ class Node(Thread):
         self.id = get_hash_value(local_addr)
         self.predecessor = None
         self.successor = None
-        self.finger_table = [] # [(key, [successor_id, successor_address(ip:port)]]
+        self.finger_table = [] # [(key, [successor_id, successor_address(ip:port)])]
 
     def set_predecessor(self, predecessor):
         self.predecessor = predecessor
@@ -60,8 +60,20 @@ class Node(Thread):
             new_request = self.generate_find_successor_request(self.id, 0)
             try:
                 response = stub.find_successor(new_request, timeout=20)
+                self.join_in_chord_ring(response)
             except Exception:
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
+
+    def join_in_chord_ring(self, response):
+        self.set_successor(response.addr)
+        # update the first entry in the finger table
+        self.finger_table[0][1][0] = response.id
+        self.finger_table[0][1][1] = response.addr
+
+        # TODO: update the predecessor of the node
+
+        # TODO: notify the successor
+
 
     def init_finger_table_with_nodes_info(self, id_addr_map):
         self.init_finger_table()
