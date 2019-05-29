@@ -1,22 +1,4 @@
-# import Node
-# import Nodes
-
-
-class Node:
-    def __init__(self, local_addr, connect_to):
-        print(local_addr, connect_to)
-
-    def start(self):
-        pass
-
-
-class Nodes:
-    def __init__(self, addr_list):
-        print(addr_list)
-
-    def start(self):
-        pass
-
+from node import Node, LocalChordCluster
 
 def start_chord():
     input_str = str(input('Specify N to initialize the system with N nodes, or type \'j\' to join an existing system\n'))
@@ -41,7 +23,7 @@ def start_chord():
             for i in range(number_of_nodes):
                 addr = (ip + ':' + str(start_port + i))
                 addr_list.append(addr)
-            Nodes(addr_list)
+            LocalChordCluster(addr_list)
 
 
 if __name__ == '__main__':
