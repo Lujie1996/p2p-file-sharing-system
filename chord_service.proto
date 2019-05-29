@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package chordService;
+
+service Chord {
+	rpc find_successor(FindSuccessorRequest) returns (FindSuccessorResponse) {}
+}
+
+message FindSuccessorRequest {
+	int32 id = 1;
+	int32 pathlen = 2;
+}
+
+message FindSuccessorResponse {
+	int32 successorId = 1;
+	int32 pathlen = 2;
+}
