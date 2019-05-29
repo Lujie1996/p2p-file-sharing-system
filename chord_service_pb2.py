@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chordService',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"=\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x32\x64\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t2d\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -84,6 +84,13 @@ _FINDSUCCESSORRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='addr', full_name='chordService.FindSuccessorResponse.addr', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -97,7 +104,7 @@ _FINDSUCCESSORRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=90,
-  serialized_end=151,
+  serialized_end=165,
 )
 
 DESCRIPTOR.message_types_by_name['FindSuccessorRequest'] = _FINDSUCCESSORREQUEST
@@ -126,8 +133,8 @@ _CHORD = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=153,
-  serialized_end=253,
+  serialized_start=167,
+  serialized_end=267,
   methods=[
   _descriptor.MethodDescriptor(
     name='find_successor',
