@@ -1,12 +1,13 @@
-import sys
-from threading import Thread
-import random
-import chord_service_pb2
-import chord_service_pb2_grpc
 import grpc
 import hashlib
+from threading import Thread
+import chord_service_pb2
+import chord_service_pb2_grpc
+from logging import Logger, StreamHandler, Formatter
+
 
 M = 5
+
 
 def get_hash_value(s):
     hash = hashlib.sha3_256()
@@ -20,15 +21,25 @@ class Node(Thread):
         self.addr = local_addr
         self.contact_to = contact_to
         self.id = get_hash_value(local_addr)
-        self.predecessor = None
-        self.successor = None
-        self.finger_table = [] # [(key, [successor_id, successor_address(ip:port)]]
+        self.predecessor = None # (id, addr)
+        self.successor = None  # (id, addr)
+        self.finger_table = [] # [(key, [successor_id, successor_address(ip:port)])]
+        self.logger = self.set_log()
 
-    def set_predecessor(self, predecessor):
-        self.predecessor = predecessor
+    def set_log(self):
+        logger = Logger(-1)
+        # logger.addHandler(FileHandler("{}_{}.log".format(PERSISTENT_PATH_PREFIC, self.name)))
+        ch = StreamHandler()
+        ch.setFormatter(Formatter("%(asctime)s %(levelname)s %(message)s"))
+        logger.addHandler(ch)
+        logger.setLevel("WARNING")
+        return logger
 
-    def set_successor(self, successor):
-        self.successor = successor
+    def set_predecessor(self, id, addr):
+        self.predecessor = (id, addr)
+
+    def set_successor(self, id, addr):
+        self.successor = (id, addr)
 
     def run(self):
         if len(self.finger_table) == 0:
@@ -50,7 +61,7 @@ class Node(Thread):
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
 
-    def join(self):
+    def _join(self):
         # join in a chord ring by connecting to the contact_to node
         if not self.contact_to:
             return
@@ -61,13 +72,42 @@ class Node(Thread):
             try:
                 # TODO: read timeout value from config.txt
                 response = stub.find_successor(new_request, timeout=20)
+                self.join_in_chord_ring(response)
             except Exception:
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
+
+    def join_in_chord_ring(self, response):
+        self.set_successor(response.successorId, response.addr)
+        # update the first entry in the finger table
+        self.finger_table[0][1][0] = response.successorId
+        self.finger_table[0][1][1] = response.addr
+
+        # update the predecessor of the node
+        # notify the successor
+        with grpc.insecure_channel(response.addr) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            find_predecessor_req = chord_service_pb2.FindPredecessorRequest()
+            notify_req = chord_service_pb2.NotifyRequest(predecessorId=self.id, addr=self.addr)
+            try:
+                find_predecessor_res = stub.find_predecessor(find_predecessor_req, timeout=20)
+                if find_predecessor_res is not None:
+                    self.predecessor = (find_predecessor_res.predecessorId, find_predecessor_res.addr)
+                notify_res = stub.notify(notify_req, timeout=20)
+            except Exception:
+                self.logger.error("Node#{} error when notify or find_predecessor to {}".format(self.id, response.addr))
+
+    def notify(self, request, context):
+        if request is None or request.predecessorId is None:
+            return chord_service_pb2.NotifyResponse(result=-1)
+
+        if not self.predecessor or (request.predecessorId > self.predecessor[0] and request.predecessorId < self.id):
+            self.predecessor = (request.predecessorId, request.addr)
+            return chord_service_pb2.NotifyResponse(result=1)
 
     def init_finger_table_with_nodes_info(self, id_addr_map):
         self.init_finger_table()
         node_identifiers = sorted(id_addr_map.keys())
-        id_pos = node_identifiers.find(self.id) # position of this node in the nodes ring
+        id_pos = node_identifiers.index(self.id) # position of this node in the nodes ring
         if id_pos == -1:
             return
 
@@ -80,6 +120,10 @@ class Node(Thread):
                     self.update_kth_finger_table_entry(i, successor_id, id_addr_map[successor_id])
                     break
                 j += 1
+
+    def delete_successor(self):
+        # TODO: delete the successor from finger table
+        pass
 
     def find_successor(self, request, context):
         if request is None:
@@ -140,9 +184,9 @@ class LocalChordCluster:
         for i, node_id in enumerate(node_identifiers):
             node = Node(node_id, id_addr_map[node_id])
             pre_id = node_identifiers[i - 1] if i > 0 else node_identifiers[-1]
-            node.set_predecessor(id_addr_map[pre_id])
+            node.set_predecessor(pre_id, id_addr_map[pre_id])
             succ_id = node_identifiers[i + 1] if i < len(node_identifiers) - 1 else node_identifiers[0]
-            node.set_successor(id_addr_map[succ_id])
+            node.set_successor(succ_id, id_addr_map[succ_id])
 
             node.init_finger_table_with_nodes_info(id_addr_map)
             node.start()
