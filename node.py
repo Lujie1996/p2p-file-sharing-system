@@ -60,9 +60,8 @@ class Node(Thread):
 
 
 class LocalChordCluster:
-    def __init__(self, addr_list, K=5):
+    def __init__(self, addr_list):
         self.addr_list = addr_list
-        self.K = K
 
     def start(self):
         # get the hash value by their addr(ip:port)
