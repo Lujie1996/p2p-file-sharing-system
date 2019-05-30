@@ -128,7 +128,7 @@ class Node(Thread):
 
     # RPC
     def find_successor(self, request, context):
-        if request is None:
+        if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
         if request.id == self.id:
