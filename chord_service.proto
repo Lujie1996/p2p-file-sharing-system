@@ -4,8 +4,9 @@ package chordService;
 
 service Chord {
 	rpc find_successor(FindSuccessorRequest) returns (FindSuccessorResponse) {}
-	rpc find_predecessor(FindPredecessorRequest) returns (FindPredecessorResponse) {}
+	rpc get_predecessor(GetPredecessorRequest) returns (GetPredecessorResponse) {}
 	rpc notify(NotifyRequest) returns (NotifyResponse) {}
+
 }
 
 message FindSuccessorRequest {
@@ -19,12 +20,13 @@ message FindSuccessorResponse {
 	string addr = 3;
 }
 
-message FindPredecessorRequest {
+message GetPredecessorRequest {
+
 }
 
-message FindPredecessorResponse {
-    int32 predecessorId = 1;
-    string addr = 2;
+message GetPredecessorResponse {
+	int32 id = 1;
+	string addr = 2;
 }
 
 message NotifyRequest {
@@ -35,3 +37,4 @@ message NotifyRequest {
 message NotifyResponse {
     int32 result = 1;
 }
+

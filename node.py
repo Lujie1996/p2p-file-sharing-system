@@ -21,9 +21,9 @@ class Node(Thread):
         self.addr = local_addr
         self.contact_to = contact_to
         self.id = get_hash_value(local_addr)
-        self.predecessor = None # (id, addr)
+        self.predecessor = None  # (id, addr)
         self.successor = None  # (id, addr)
-        self.finger_table = [] # [(key, [successor_id, successor_address(ip:port)])]
+        self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.logger = self.set_log()
 
     def set_log(self):
@@ -96,6 +96,7 @@ class Node(Thread):
             except Exception:
                 self.logger.error("Node#{} error when notify or find_predecessor to {}".format(self.id, response.addr))
 
+    # RPC
     def notify(self, request, context):
         if request is None or request.predecessorId is None:
             return chord_service_pb2.NotifyResponse(result=-1)
@@ -125,6 +126,7 @@ class Node(Thread):
         # TODO: delete the successor from finger table
         pass
 
+    # RPC
     def find_successor(self, request, context):
         if request is None:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
@@ -144,10 +146,23 @@ class Node(Thread):
                 try:
                     response = stub.find_successor(new_request, timeout=20)
                 except Exception:
-                    #self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, next_id))
+                    # self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, next_id))
                     return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
             return response
+
+    def find_successor_local(self, id):
+        # Different from find_successor(), this function is not a RPC and it starts to find successor of id
+        request = self.generate_find_successor_request(id, 0)
+
+        with grpc.insecure_channel(self.addr) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            try:
+                response = stub.find_successor(request, timeout=20)
+                return response.successorId, response.addr
+            except Exception:
+                return -1, str(-1)
+                print('find_successor_local() failed at RPC')
 
     def closest_preceding_node(self, id):
         i = 0
@@ -166,6 +181,25 @@ class Node(Thread):
         request.id = id
         request.pathlen = pathlen
         return request
+
+    # RPC
+    def get_predecessor(self, request, context):
+        if not self.predecessor:
+            # when node does not have a predecessor yet, return the node itself
+            return chord_service_pb2.GetPredeccessorResponse(id=self.id, addr=self.addr)
+        else:
+            return chord_service_pb2.GetPredeccessorResponse(id=self.predecessor[0], addr=self.predecessor[1])
+
+    def get_successors_predecessor(self):
+        with grpc.insecure_channel(self.successor[1]) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            try:
+                request = chord_service_pb2.GetPredeccessorRequest()
+                response = stub.get_predecessor(request, timeout=20)
+                return response.id, response.addr
+            except Exception:
+                print('get_successors_predecessor() failed at RPC')
+                return -1, str(-1)
 
 
 class LocalChordCluster:
