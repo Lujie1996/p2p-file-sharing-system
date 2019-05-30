@@ -4,15 +4,18 @@ from threading import Thread
 import chord_service_pb2
 import chord_service_pb2_grpc
 from logging import Logger, StreamHandler, Formatter
+from fix_finger import FixFigure
+from stabilize import Stabilize
 
 
 M = 5
 
 
 def get_hash_value(s):
-    hash = hashlib.sha3_256()
-    hash.update(s.encode())
-    return int(hash.hexdigest()) % (2 ** M)
+    hash = hashlib.sha1()
+    hash.update(str(s).encode())
+    # print('hashed value for {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
+    return int(hash.hexdigest(), 16) % (2 ** M)
 
 
 class Node(Thread):
@@ -25,6 +28,9 @@ class Node(Thread):
         self.successor = None  # (id, addr)
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.logger = self.set_log()
+        self.only_main_thread = True
+        self.fix_fingure = FixFigure(self)
+        self.stabilize = Stabilize(self)
 
     def set_log(self):
         logger = Logger(-1)
@@ -45,9 +51,11 @@ class Node(Thread):
         if len(self.finger_table) == 0:
             self.init_finger_table()
 
-        # TODO: initial the stabilize thread
+        if not self.only_main_thread:
+            self.fix_fingure.start()
+            self.stabilize.start()
 
-        # TODO: initial the fix_finger_table thread
+        print('[node] #{}: finger table: {}'.format(self.id, self.finger_table))
 
     def init_finger_table(self):
         for i in range(0, M):
@@ -85,9 +93,9 @@ class Node(Thread):
         # update the predecessor of the node
         with grpc.insecure_channel(response.addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
-            find_predecessor_req = chord_service_pb2.FindPredecessorRequest()
+            find_predecessor_req = chord_service_pb2.GetPredecessorRequest()
             try:
-                find_predecessor_res = stub.find_predecessor(find_predecessor_req, timeout=20)
+                find_predecessor_res = stub.get_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
                     self.predecessor = (find_predecessor_res.predecessorId, find_predecessor_res.addr)
             except Exception:
@@ -119,13 +127,13 @@ class Node(Thread):
     def init_finger_table_with_nodes_info(self, id_addr_map):
         self.init_finger_table()
         node_identifiers = sorted(id_addr_map.keys())
-        id_pos = node_identifiers.index(self.id) # position of this node in the nodes ring
+        id_pos = node_identifiers.index(self.id)  # position of this node in the nodes ring
         if id_pos == -1:
             return
 
         j = id_pos + 1
         for i in range(0, M):
-            key = self.id + 2 ** i
+            key = (self.id + 2 ** i) % (2 ** M)
             while j < len(node_identifiers):
                 if node_identifiers[j] >= key:
                     successor_id = node_identifiers[j]
@@ -196,7 +204,7 @@ class Node(Thread):
                 return response.successorId, response.addr
                 # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception:
-                print('{}: find_successor_local() failed at RPC'.format(self.id))
+                print('[node] #{}: find_successor_local() failed at RPC'.format(self.id))
                 return -2, str(-2)
                 # return -2 when this RPC went wrong
 
@@ -222,23 +230,26 @@ class Node(Thread):
     def get_predecessor(self, request, context):
         if not self.predecessor:
             # when node does not have a predecessor yet, return the node itself
-            return chord_service_pb2.GetPredeccessorResponse(id=self.id, addr=self.addr)
+            return chord_service_pb2.GetPredecessorResponse(id=self.id, addr=self.addr)
         else:
-            return chord_service_pb2.GetPredeccessorResponse(id=self.predecessor[0], addr=self.predecessor[1])
+            return chord_service_pb2.GetPredecessorResponse(id=self.predecessor[0], addr=self.predecessor[1])
 
     def get_successors_predecessor(self):
         with grpc.insecure_channel(self.successor[1]) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             try:
-                request = chord_service_pb2.GetPredeccessorRequest()
+                request = chord_service_pb2.GetPredecessorRequest()
                 response = stub.get_predecessor(request, timeout=20)
                 return response.id, response.addr
-            except Exception:
-                print('get_successors_predecessor() failed at RPC')
+            except Exception as e:
+                print('[node] #{} get_successors_predecessor() failed at RPC'.format(self.id))
+                print('-------------------------------------------------------------------------------')
+                print(str(e))
+                print('-------------------------------------------------------------------------------')
                 return -1, str(-1)
 
 
-class LocalChordCluster:
+class LocalChordCluster():
     def __init__(self, addr_list):
         self.addr_list = addr_list
 
@@ -252,7 +263,7 @@ class LocalChordCluster:
         node_identifiers = sorted(id_addr_map.keys())
 
         for i, node_id in enumerate(node_identifiers):
-            node = Node(node_id, id_addr_map[node_id])
+            node = Node(id_addr_map[node_id])
             pre_id = node_identifiers[i - 1] if i > 0 else node_identifiers[-1]
             node.set_predecessor(pre_id, id_addr_map[pre_id])
             succ_id = node_identifiers[i + 1] if i < len(node_identifiers) - 1 else node_identifiers[0]

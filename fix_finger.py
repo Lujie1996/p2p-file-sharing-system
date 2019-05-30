@@ -35,6 +35,9 @@ class FixFigure(Thread):
             ith_entry_id = (self.node.id + (2 ** (i-1))) % (2 ** M)
             successor_id, successor_addr = self.node.find_successor_local(ith_entry_id)
             if successor_id == -1:
-                print('{}: [fix_fingure]: find_successor_local() failed. ith_entry_id: {}'.format(self.node.id, ith_entry_id))
+                print('[fix_fingure] #{}: find_successor_local() failed. ith_entry_id: {}'
+                      .format(self.node.id, ith_entry_id))
             else:
+                print('[fix_finger] #{}:  update_kth_finger_table_entry() failed. successor_id: {}, successor_addr: {}'
+                      .format(self.node.id, successor_id, successor_addr))
                 self.node.update_kth_finger_table_entry(successor_id, successor_addr)

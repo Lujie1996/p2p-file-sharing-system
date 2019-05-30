@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chordService',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x18\n\x16\x46indPredecessorRequest\">\n\x17\x46indPredecessorResponse\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"4\n\rNotifyRequest\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\" \n\x0eNotifyResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\x8e\x02\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x12\x61\n\x10\x66ind_predecessor\x12$.chordService.FindPredecessorRequest\x1a%.chordService.FindPredecessorResponse\"\x00\x12\x45\n\x06notify\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x17\n\x15GetPredecessorRequest\"2\n\x16GetPredecessorResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"4\n\rNotifyRequest\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\" \n\x0eNotifyResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\x8b\x02\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x12^\n\x0fget_predecessor\x12#.chordService.GetPredecessorRequest\x1a$.chordService.GetPredecessorResponse\"\x00\x12\x45\n\x06notify\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -108,9 +108,9 @@ _FINDSUCCESSORRESPONSE = _descriptor.Descriptor(
 )
 
 
-_FINDPREDECESSORREQUEST = _descriptor.Descriptor(
-  name='FindPredecessorRequest',
-  full_name='chordService.FindPredecessorRequest',
+_GETPREDECESSORREQUEST = _descriptor.Descriptor(
+  name='GetPredecessorRequest',
+  full_name='chordService.GetPredecessorRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -128,26 +128,26 @@ _FINDPREDECESSORREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=167,
-  serialized_end=191,
+  serialized_end=190,
 )
 
 
-_FINDPREDECESSORRESPONSE = _descriptor.Descriptor(
-  name='FindPredecessorResponse',
-  full_name='chordService.FindPredecessorResponse',
+_GETPREDECESSORRESPONSE = _descriptor.Descriptor(
+  name='GetPredecessorResponse',
+  full_name='chordService.GetPredecessorResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='predecessorId', full_name='chordService.FindPredecessorResponse.predecessorId', index=0,
+      name='id', full_name='chordService.GetPredecessorResponse.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='addr', full_name='chordService.FindPredecessorResponse.addr', index=1,
+      name='addr', full_name='chordService.GetPredecessorResponse.addr', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -165,8 +165,8 @@ _FINDPREDECESSORRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=193,
-  serialized_end=255,
+  serialized_start=192,
+  serialized_end=242,
 )
 
 
@@ -203,8 +203,8 @@ _NOTIFYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=257,
-  serialized_end=309,
+  serialized_start=244,
+  serialized_end=296,
 )
 
 
@@ -234,14 +234,14 @@ _NOTIFYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=311,
-  serialized_end=343,
+  serialized_start=298,
+  serialized_end=330,
 )
 
 DESCRIPTOR.message_types_by_name['FindSuccessorRequest'] = _FINDSUCCESSORREQUEST
 DESCRIPTOR.message_types_by_name['FindSuccessorResponse'] = _FINDSUCCESSORRESPONSE
-DESCRIPTOR.message_types_by_name['FindPredecessorRequest'] = _FINDPREDECESSORREQUEST
-DESCRIPTOR.message_types_by_name['FindPredecessorResponse'] = _FINDPREDECESSORRESPONSE
+DESCRIPTOR.message_types_by_name['GetPredecessorRequest'] = _GETPREDECESSORREQUEST
+DESCRIPTOR.message_types_by_name['GetPredecessorResponse'] = _GETPREDECESSORRESPONSE
 DESCRIPTOR.message_types_by_name['NotifyRequest'] = _NOTIFYREQUEST
 DESCRIPTOR.message_types_by_name['NotifyResponse'] = _NOTIFYRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -260,19 +260,19 @@ FindSuccessorResponse = _reflection.GeneratedProtocolMessageType('FindSuccessorR
   ))
 _sym_db.RegisterMessage(FindSuccessorResponse)
 
-FindPredecessorRequest = _reflection.GeneratedProtocolMessageType('FindPredecessorRequest', (_message.Message,), dict(
-  DESCRIPTOR = _FINDPREDECESSORREQUEST,
+GetPredecessorRequest = _reflection.GeneratedProtocolMessageType('GetPredecessorRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETPREDECESSORREQUEST,
   __module__ = 'chord_service_pb2'
-  # @@protoc_insertion_point(class_scope:chordService.FindPredecessorRequest)
+  # @@protoc_insertion_point(class_scope:chordService.GetPredecessorRequest)
   ))
-_sym_db.RegisterMessage(FindPredecessorRequest)
+_sym_db.RegisterMessage(GetPredecessorRequest)
 
-FindPredecessorResponse = _reflection.GeneratedProtocolMessageType('FindPredecessorResponse', (_message.Message,), dict(
-  DESCRIPTOR = _FINDPREDECESSORRESPONSE,
+GetPredecessorResponse = _reflection.GeneratedProtocolMessageType('GetPredecessorResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETPREDECESSORRESPONSE,
   __module__ = 'chord_service_pb2'
-  # @@protoc_insertion_point(class_scope:chordService.FindPredecessorResponse)
+  # @@protoc_insertion_point(class_scope:chordService.GetPredecessorResponse)
   ))
-_sym_db.RegisterMessage(FindPredecessorResponse)
+_sym_db.RegisterMessage(GetPredecessorResponse)
 
 NotifyRequest = _reflection.GeneratedProtocolMessageType('NotifyRequest', (_message.Message,), dict(
   DESCRIPTOR = _NOTIFYREQUEST,
@@ -296,8 +296,8 @@ _CHORD = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=346,
-  serialized_end=616,
+  serialized_start=333,
+  serialized_end=600,
   methods=[
   _descriptor.MethodDescriptor(
     name='find_successor',
@@ -309,12 +309,12 @@ _CHORD = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='find_predecessor',
-    full_name='chordService.Chord.find_predecessor',
+    name='get_predecessor',
+    full_name='chordService.Chord.get_predecessor',
     index=1,
     containing_service=None,
-    input_type=_FINDPREDECESSORREQUEST,
-    output_type=_FINDPREDECESSORRESPONSE,
+    input_type=_GETPREDECESSORREQUEST,
+    output_type=_GETPREDECESSORRESPONSE,
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
