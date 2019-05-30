@@ -24,7 +24,7 @@ def start_chord():
             for i in range(number_of_nodes):
                 addr = (ip + ':' + str(start_port + i))
                 addr_list.append(addr)
-            LocalChordCluster(addr_list)
+            LocalChordCluster(addr_list).start()
 
 
 if __name__ == '__main__':

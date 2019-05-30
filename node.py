@@ -133,7 +133,7 @@ class Node(Thread):
 
     # RPC
     def find_successor(self, request, context):
-        if request is None:
+        if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
         if request.id == self.id:
@@ -165,9 +165,11 @@ class Node(Thread):
             try:
                 response = stub.find_successor(request, timeout=20)
                 return response.successorId, response.addr
+                # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception:
-                return -1, str(-1)
-                print('find_successor_local() failed at RPC')
+                print('{}: find_successor_local() failed at RPC'.format(self.id))
+                return -2, str(-2)
+                # return -2 when this RPC went wrong
 
     def closest_preceding_node(self, id):
         i = 0
