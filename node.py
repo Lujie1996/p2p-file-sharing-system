@@ -161,8 +161,8 @@ class Node(Thread):
                 response = stub.find_successor(request, timeout=20)
                 return response.successorId, response.addr
             except Exception:
+                print('{}: find_successor_local() failed at RPC'.format(self.id))
                 return -1, str(-1)
-                print('find_successor_local() failed at RPC')
 
     def closest_preceding_node(self, id):
         i = 0
