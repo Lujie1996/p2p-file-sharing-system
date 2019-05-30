@@ -1,5 +1,6 @@
 from node import Node, LocalChordCluster
 
+
 def start_chord():
     input_str = str(input('Specify N to initialize the system with N nodes, or type \'j\' to join an existing system\n'))
     if input_str == 'j':
