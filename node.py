@@ -160,9 +160,11 @@ class Node(Thread):
             try:
                 response = stub.find_successor(request, timeout=20)
                 return response.successorId, response.addr
+                # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception:
-                return -1, str(-1)
-                print('find_successor_local() failed at RPC')
+                print('{}: find_successor_local() failed at RPC'.format(self.id))
+                return -2, str(-2)
+                # return -2 when this RPC went wrong
 
     def closest_preceding_node(self, id):
         i = 0
