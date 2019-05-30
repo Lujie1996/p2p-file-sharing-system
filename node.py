@@ -83,18 +83,29 @@ class Node(Thread):
         self.finger_table[0][1][1] = response.addr
 
         # update the predecessor of the node
-        # notify the successor
         with grpc.insecure_channel(response.addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             find_predecessor_req = chord_service_pb2.FindPredecessorRequest()
-            notify_req = chord_service_pb2.NotifyRequest(predecessorId=self.id, addr=self.addr)
             try:
                 find_predecessor_res = stub.find_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
                     self.predecessor = (find_predecessor_res.predecessorId, find_predecessor_res.addr)
+            except Exception:
+                self.logger.error("Node#{} error when find_predecessor to {}".format(self.id, response.addr))
+
+        self.notify_successor()
+
+    def notify_successor(self):
+        # used to contact successor and notify the existence of current node
+        if self.successor is None:
+            return
+        with grpc.insecure_channel(self.successor[1]) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            notify_req = chord_service_pb2.NotifyRequest(predecessorId=self.id, addr=self.addr)
+            try:
                 notify_res = stub.notify(notify_req, timeout=20)
             except Exception:
-                self.logger.error("Node#{} error when notify or find_predecessor to {}".format(self.id, response.addr))
+                self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
 
     # RPC
     def notify(self, request, context):
@@ -123,8 +134,31 @@ class Node(Thread):
                 j += 1
 
     def delete_successor(self):
-        # TODO: delete the successor from finger table
-        pass
+        # delete the successor from finger table and fill in with the most recent successor after that
+        if self.successor is None:
+            return -1
+
+        next_suc = None
+        suc_id = self.successor[0]
+        # find the closest successor
+        for i in range(0, M):
+            key, suc_info = self.finger_table[i]
+            if suc_info[0] is not None and suc_info[0] > suc_id:
+                next_suc = suc_info
+                break
+
+        for i in range(0, M):
+            key, suc_info = self.finger_table[i]
+            if suc_info[0] == suc_id:
+                # replace this successor with next possible successor, otherwise to set it to be None
+                if next_suc is not None:
+                    suc_info[0] = next_suc[0]
+                    suc_info[1] = next_suc[1]
+                else:
+                    suc_info[0] = None
+                    suc_info[1] = None
+            else:
+                break
 
     # RPC
     def find_successor(self, request, context):
