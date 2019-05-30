@@ -24,10 +24,10 @@ class Stabilize(Thread):
         while True:
             suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
             if suc_pre_id == -1:
-                print('{}: [stabilize]: get_successors_predecessor() failed. Successor failed to call other RPC'
+                print('[stabilize] #{}: get_successors_predecessor() failed. Successor failed to call other RPC'
                       .format(self.node.id))
             elif suc_pre_id == -2:
-                print('{}: [stabilize]: get_successors_predecessor() failed. Successor itself has failed'
+                print('[stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed'
                       .format(self.node.id))
                 self.node.delete_successor()
             elif suc_pre_addr == self.node.successor[0]:

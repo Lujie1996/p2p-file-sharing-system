@@ -19,10 +19,10 @@ class ChordStub(object):
         request_serializer=chord__service__pb2.FindSuccessorRequest.SerializeToString,
         response_deserializer=chord__service__pb2.FindSuccessorResponse.FromString,
         )
-    self.find_predecessor = channel.unary_unary(
-        '/chordService.Chord/find_predecessor',
-        request_serializer=chord__service__pb2.FindPredecessorRequest.SerializeToString,
-        response_deserializer=chord__service__pb2.FindPredecessorResponse.FromString,
+    self.get_predecessor = channel.unary_unary(
+        '/chordService.Chord/get_predecessor',
+        request_serializer=chord__service__pb2.GetPredecessorRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.GetPredecessorResponse.FromString,
         )
     self.notify = channel.unary_unary(
         '/chordService.Chord/notify',
@@ -42,7 +42,7 @@ class ChordServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def find_predecessor(self, request, context):
+  def get_predecessor(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -64,10 +64,10 @@ def add_ChordServicer_to_server(servicer, server):
           request_deserializer=chord__service__pb2.FindSuccessorRequest.FromString,
           response_serializer=chord__service__pb2.FindSuccessorResponse.SerializeToString,
       ),
-      'find_predecessor': grpc.unary_unary_rpc_method_handler(
-          servicer.find_predecessor,
-          request_deserializer=chord__service__pb2.FindPredecessorRequest.FromString,
-          response_serializer=chord__service__pb2.FindPredecessorResponse.SerializeToString,
+      'get_predecessor': grpc.unary_unary_rpc_method_handler(
+          servicer.get_predecessor,
+          request_deserializer=chord__service__pb2.GetPredecessorRequest.FromString,
+          response_serializer=chord__service__pb2.GetPredecessorResponse.SerializeToString,
       ),
       'notify': grpc.unary_unary_rpc_method_handler(
           servicer.notify,
