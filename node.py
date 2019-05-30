@@ -96,6 +96,11 @@ class Node(Thread):
             except Exception:
                 self.logger.error("Node#{} error when notify or find_predecessor to {}".format(self.id, response.addr))
 
+    def notify_successor(self):
+        # used to contact successor and notify the existence of current node
+
+
+
     # RPC
     def notify(self, request, context):
         if request is None or request.predecessorId is None:
