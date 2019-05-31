@@ -26,7 +26,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
-        self.only_main_thread = False
+        self.only_main_thread = True
         self.fix_finger = FixFinger(self)
         self.stabilize = Stabilize(self)
         self.run()
@@ -93,7 +93,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
 
     def join_in_chord_ring(self, response):
-        print("get successor: {} when join in the ring".format(str(response)))
+        #print("get successor: {} when join in the ring".format(str(response)))
         self.set_successor(response.successorId, response.addr)
         # update the first entry in the finger table
         self.finger_table[0][1][0] = response.successorId
@@ -279,7 +279,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     # RPC
     def get_predecessor(self, request, context):
         
-        print("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
+        #cprint("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
         if not self.predecessor:
             # when node does not have a predecessor yet, return the node itself
             return chord_service_pb2.GetPredecessorResponse(id=self.id, addr=self.addr)
@@ -301,8 +301,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 return -1, str(-1)
 
     # RPC
-    def get_finger_table(self, request, context):
-        response = chord_service_pb2.GetFingerTableResponse()
+    def get_configuration(self, request, context):
+        response = chord_service_pb2.GetConfigurationResponse()
+        response.predecessorId = self.predecessor[0]
+        response.successorId = self.successor[0]
         for e in self.finger_table:
             entry = response.table.add()
             entry.id = int(e[0])
