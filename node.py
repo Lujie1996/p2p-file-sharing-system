@@ -147,12 +147,16 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
         # print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
+        #
+        # if request_predecessor_id_offset <= predecessor_id_offset:
+        #     print('{} changing predecessor to {}'.format(self.id, request.predecessorId))
+        #     self.predecessor = (request.predecessorId, request.addr)
+        #     return chord_service_pb2.NotifyResponse(result=0)
 
-        if request_predecessor_id_offset <= predecessor_id_offset:
-            self.predecessor = (request.predecessorId, request.addr)
-            return chord_service_pb2.NotifyResponse(result=0)
+        print('{} changing predecessor to {}'.format(self.id, request.predecessorId))
+        self.predecessor = (request.predecessorId, request.addr)
 
-        return chord_service_pb2.NotifyResponse(result=1)
+        return chord_service_pb2.NotifyResponse(result=0)
 
     def initialize_with_node_info(self):
         self.init_finger_table()
@@ -328,7 +332,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 response = stub.get_predecessor(request, timeout=20)
                 return response.id, response.addr
             except Exception as e:
-                print('[node] #{} get_successors_predecessor() failed at RPC'.format(self.id))
+                print('[node] #{} get_successors_predecessor() failed at RPC. Current successor is: {}.'.format(self.id, self.successor))
                 # print('-------------------------------------------------------------------------------')
                 # print(str(e))
                 # print('-------------------------------------------------------------------------------')
