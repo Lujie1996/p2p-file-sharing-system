@@ -37,6 +37,7 @@ class FixFinger(Thread):
             ith_entry_id = (self.node.id + (2 ** (i-1))) % (2 ** M)
             successor_id, successor_addr = self.node.find_successor_local(ith_entry_id)
             if successor_id == -1:
+                print(self.node.finger_table)
                 print('[fix_finger] #{}: find_successor_local() failed, find_successor returned -1. ith_entry_id: {}'
                       .format(self.node.id, ith_entry_id))
             elif successor_id == -2:

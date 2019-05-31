@@ -89,6 +89,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     def join_in_chord_ring(self, response):
         self.set_successor(response.successorId, response.addr)
+        print('join_in_chord_ring(): the successor is: {} at {}'.format(response.successorId, response.addr))
         # update the first entry in the finger table
         self.finger_table[0][1][0] = response.successorId
         self.finger_table[0][1][1] = response.addr
@@ -211,7 +212,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 try:
                     response = stub.find_successor(new_request, timeout=20)
                 except Exception as e:
-                    # print('2nd RPC failed')
+                    print('2nd RPC failed')
                     print(str(e))
                     # self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, next_id))
                     return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
@@ -233,7 +234,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 return response.successorId, response.addr
                 # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception as e:
-                # print('[node] #{}: find_successor_local() failed at RPC'.format(self.id))
+                print('[node] #{}: find_successor_local() failed at RPC'.format(self.id))
                 print(str(e))
                 return -2, str(-2)
                 # return -2 when this RPC went wrong
