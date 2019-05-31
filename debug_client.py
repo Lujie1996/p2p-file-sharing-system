@@ -1,4 +1,5 @@
 import grpc
+import sys
 import chord_service_pb2
 import chord_service_pb2_grpc
 from utils import *
@@ -10,8 +11,10 @@ def get_finger_table_of_all_nodes(number_of_nodes):
     for addr in addr_list:
         print('--------------------------------------------------------')
         print('Node #{} at {}'.format(get_hash_value(addr), addr))
+        get_finger_table(addr)
 
-        with grpc.insecure_channel(addr) as channel:
+def get_finger_table(addr):
+    with grpc.insecure_channel(addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             try:
                 request = chord_service_pb2.GetFingerTableRequest()
@@ -21,6 +24,15 @@ def get_finger_table_of_all_nodes(number_of_nodes):
             except Exception as e:
                 print(e)
 
-
-number_of_nodes = int(input('Number of nodes in Chord:\n'))
-get_finger_table_of_all_nodes(number_of_nodes)
+def start(args):
+   debug_type = args[1]
+   if debug_type == "one_finger_table":
+      addr = args[2]
+      get_finger_table(addr)
+   elif debug_type == "all":
+      number_of_nodes = int(input('Number of nodes in Chord:\n'))
+      get_finger_table_of_all_nodes(number_of_nodes)
+      
+   
+if __name__ == "__main__":
+   start(sys.argv)

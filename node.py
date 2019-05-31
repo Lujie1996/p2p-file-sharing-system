@@ -1,6 +1,7 @@
 import sys
 import grpc
 import time
+import random
 import hashlib
 import threading
 from concurrent import futures
@@ -51,6 +52,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             self.initialize_with_node_info()
         else:
             self._join()
+
         if not self.only_main_thread:
             self.fix_finger.start()
             self.stabilize.start()
@@ -69,6 +71,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
+        #print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
 
     def _join(self):
         # join in a chord ring by connecting to the contact_to node
@@ -76,6 +79,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             print("No contact_to is specified!")
             return
 
+        print("contact to {} when node {} join in".format(self.contact_to, self.id))
         self.init_finger_table()
         with grpc.insecure_channel(self.contact_to) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
@@ -84,10 +88,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 # TODO: read timeout value from config.txt
                 response = stub.find_successor(new_request, timeout=20)
                 self.join_in_chord_ring(response)
-            except Exception:
+            except Exception as e: 
+                print("Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
 
     def join_in_chord_ring(self, response):
+        print("get successor: {} when join in the ring".format(str(response)))
         self.set_successor(response.successorId, response.addr)
         print('join_in_chord_ring(): the successor is: {} at {}'.format(response.successorId, response.addr))
         # update the first entry in the finger table
@@ -101,9 +107,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 find_predecessor_res = stub.get_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
-                    self.predecessor = (find_predecessor_res.predecessorId, find_predecessor_res.addr)
-            except Exception:
-                self.logger.error("Node#{} error when find_predecessor to {}".format(self.id, response.addr))
+                    self.predecessor = (find_predecessor_res.id, find_predecessor_res.addr)
+                print("get predecessor response is {}".format(str(find_predecessor_res)))
+            except Exception as e: 
+                self.logger.error("%%%%%Node#{} error when find_predecessor to {}".format(self.id, response.addr))
 
         self.notify_successor()
 
@@ -121,6 +128,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def notify(self, request, context):
+        print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
         if request is None or request.predecessorId is None:
             return chord_service_pb2.NotifyResponse(result=-1)
 
@@ -271,6 +279,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def get_predecessor(self, request, context):
+        
+        print("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
         if not self.predecessor:
             # when node does not have a predecessor yet, return the node itself
             return chord_service_pb2.GetPredecessorResponse(id=self.id, addr=self.addr)
@@ -323,6 +333,9 @@ class LocalChordCluster():
             print('Node {} started at {}...'.format(node_id, id_addr_map[node_id]))
 
 
+
+
+
 def serve(addr, id_addr_map=None):
     print("starting rpc server: {}".format(addr))
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
@@ -360,5 +373,5 @@ def serve_join(addr, connect_to):
 
 
 if __name__ == "__main__":
-    addr = sys.argv[1]
-    serve(addr)
+    addr = sys.argv[1] 
+    serve(addr, None)
