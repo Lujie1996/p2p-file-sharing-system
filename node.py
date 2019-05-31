@@ -7,7 +7,7 @@ from concurrent import futures
 import chord_service_pb2
 import chord_service_pb2_grpc
 from logging import Logger, StreamHandler, Formatter
-from fix_finger import FixFigure
+from fix_finger import FixFinger
 from stabilize import Stabilize
 
 
@@ -33,7 +33,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
         self.only_main_thread = False
-        self.fix_fingure = FixFigure(self)
+        self.fix_finger = FixFinger(self)
         self.stabilize = Stabilize(self)
         self.run()
 
@@ -56,7 +56,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # initialize the finger table and set the predecessor as well as successor
         self.initialize_with_node_info()
         if not self.only_main_thread:
-            self.fix_fingure.start()
+            self.fix_finger.start()
             self.stabilize.start()
         print('[node] #{}: finger table: {}; successor: {}; predecessor: {}'
               .format(self.id, self.finger_table, self.successor, self.predecessor))
@@ -69,7 +69,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             self.finger_table.append((key, l))
 
     def update_kth_finger_table_entry(self, k, successor_id, successor_addr):
-        print('*****NOW UPDATE FINGER ENTRY*****')
+        #print('*****NOW UPDATE FINGER ENTRY*****')
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
@@ -199,8 +199,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
-        elif self.id < request.id <= self.successor[0] or self.id < request.id + 2 ** M <= self.successor[0] + 2 ** M:
-            return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.addr)
+        elif self.id < request.id <= self.successor[0] or self.id > self.successor[0] and (request.id > self.id or request.id <= self.successor[0]):
+            return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.successor[1])
         else:
             next_id, next_address = self.closest_preceding_node(request.id)
             if self.id == next_id:  # There is only one node in chord ring
@@ -227,7 +227,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             stub = chord_service_pb2_grpc.ChordStub(channel)
             try:
                 response = stub.find_successor(request, timeout=20)
-                # print('{} looks for id {}, return is {}'.format(self.id, request.id, response.successorId))
+                print('{} looks for id {}, return is {}'.format(self.id, request.id, response.successorId))
                 return response.successorId, response.addr
                 # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception as e:
@@ -238,7 +238,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     def closest_preceding_node(self, id):
         i = 0
-        while i < len(self.finger_table) - 1:
+        while i < len(self.finger_table):
             if id <= self.finger_table[i][1][0]:
                 print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
                 return self.finger_table[i-1][1]
@@ -247,8 +247,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                     print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
                     return self.finger_table[i-1][1]
             i += 1
-        print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i][1])))
-        return self.finger_table[i][1]
+        print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[-1][1])))
+        return self.finger_table[-1][1]
 
     def generate_find_successor_request(self, id, pathlen):
         request = chord_service_pb2.FindSuccessorRequest()
@@ -299,6 +299,7 @@ class LocalChordCluster():
         id_addr_map = dict()
         for addr in self.addr_list:
             node_id = get_hash_value(addr)
+            print(node_id)
             id_addr_map[node_id] = addr
         node_identifiers = sorted(id_addr_map.keys())
 
