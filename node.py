@@ -195,7 +195,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # find the closest successor
         for i in range(0, M):
             key, suc_info = self.finger_table[i]
-            if suc_info[0] is not None and suc_info[0] > suc_id:
+            if suc_info[0] is not None and suc_info[0] != suc_id:
                 next_suc = suc_info
                 break
 
@@ -211,6 +211,9 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                     suc_info[1] = None
             else:
                 break
+
+        self.set_successor(self.finger_table[0][1][0], self.finger_table[0][1][1])
+
         return 0
     
     # RPC
@@ -222,9 +225,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
+        search_id_offset = find_offset(self.id, request.id)
+        successor_id_offset = find_offset(self.id, self.successor[0])
+
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
-        elif self.id < request.id <= self.successor[0] or self.id > self.successor[0] and (request.id > self.id or request.id <= self.successor[0]):
+        elif search_id_offset <= successor_id_offset:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.successor[1])
         else:
             next_id, next_address = self.closest_preceding_node(request.id)

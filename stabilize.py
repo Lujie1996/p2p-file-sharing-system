@@ -27,7 +27,12 @@ class Stabilize(Thread):
             sleep_time = random.randint(low * 1000, high * 1000) / 1000.0
             time.sleep(sleep_time)
 
-            suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
+            try:
+                suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
+            except Exception as e:
+                suc_pre_id = -1
+                print("**************get_successors_predecessor exception**************")
+
             if suc_pre_id == -1:
                 print('[stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
