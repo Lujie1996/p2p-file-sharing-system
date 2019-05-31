@@ -269,7 +269,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         for i in range(M - 1, 0, -1):
             ith_finger = self.finger_table[i][1]  # [id, address]
-            if ith_finger is None:
+            if ith_finger is None or ith_finger[0] == -1:
                 continue
 
             ith_finger_id = ith_finger[0]
@@ -283,7 +283,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 # TODO: Check if it is alive
                 # query = query_to_address(ith_finger, Message.get_json_dump("areyoualive"))
                 # if query["subject"] == "iamalive":
-                # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
+                #print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
                 return ith_finger_id, ith_finger_addr
 
         return self.finger_table[0][1]
