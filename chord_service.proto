@@ -7,6 +7,7 @@ service Chord {
 	rpc get_predecessor(GetPredecessorRequest) returns (GetPredecessorResponse) {}
 	rpc notify(NotifyRequest) returns (NotifyResponse) {}
 
+	rpc get_finger_table (GetFingerTableRequest) returns (GetFingerTableResponse) {}
 }
 
 message FindSuccessorRequest {
@@ -36,5 +37,13 @@ message NotifyRequest {
 
 message NotifyResponse {
     int32 result = 1;
+}
+
+message GetFingerTableRequest {
+
+}
+
+message GetFingerTableResponse {
+	
 }
 
