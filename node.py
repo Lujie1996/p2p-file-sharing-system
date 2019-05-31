@@ -119,6 +119,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # used to contact successor and notify the existence of current node
         if self.successor is None:
             return
+
+        print('In notify_successor  |  successorId:{}  |  succesorAddr:{}'.format(self.successor[0], self.successor[1]))
         with grpc.insecure_channel(self.successor[1]) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             notify_req = chord_service_pb2.NotifyRequest(predecessorId=self.id, addr=self.addr)
@@ -131,11 +133,24 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def notify(self, request, context):
         print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
         if request is None or request.predecessorId is None:
+            print("1st if")
             return chord_service_pb2.NotifyResponse(result=-1)
 
-        if not self.predecessor or (request.predecessorId > self.predecessor[0] and request.predecessorId < self.id):
+        if self.predecessor is None:
+            print("2nd if")
             self.predecessor = (request.predecessorId, request.addr)
-            return chord_service_pb2.NotifyResponse(result=1)
+            return chord_service_pb2.NotifyResponse(result=0)
+
+        predecessor_id_offset = find_offset(self.predecessor[0], self.id)
+        request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
+
+        print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
+
+        if request_predecessor_id_offset <= predecessor_id_offset:
+            self.predecessor = (request.predecessorId, request.addr)
+            return chord_service_pb2.NotifyResponse(result=0)
+
+        return chord_service_pb2.NotifyResponse(result=1)
 
     def initialize_with_node_info(self):
         self.init_finger_table()
@@ -201,8 +216,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     # RPC
     def find_successor(self, request, context):
         # print("in find_successor---self.id:{}  self.addr:{}".format(self.id, self.addr))
-        print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
-        print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
+        #print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
+        #print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
