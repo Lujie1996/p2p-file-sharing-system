@@ -29,6 +29,11 @@ class ChordStub(object):
         request_serializer=chord__service__pb2.NotifyRequest.SerializeToString,
         response_deserializer=chord__service__pb2.NotifyResponse.FromString,
         )
+    self.get_finger_table = channel.unary_unary(
+        '/chordService.Chord/get_finger_table',
+        request_serializer=chord__service__pb2.GetFingerTableRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.GetFingerTableResponse.FromString,
+        )
 
 
 class ChordServicer(object):
@@ -56,6 +61,13 @@ class ChordServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def get_finger_table(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_ChordServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -73,6 +85,11 @@ def add_ChordServicer_to_server(servicer, server):
           servicer.notify,
           request_deserializer=chord__service__pb2.NotifyRequest.FromString,
           response_serializer=chord__service__pb2.NotifyResponse.SerializeToString,
+      ),
+      'get_finger_table': grpc.unary_unary_rpc_method_handler(
+          servicer.get_finger_table,
+          request_deserializer=chord__service__pb2.GetFingerTableRequest.FromString,
+          response_serializer=chord__service__pb2.GetFingerTableResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

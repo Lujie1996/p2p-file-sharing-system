@@ -28,7 +28,7 @@ class Node(Thread):
         self.successor = None  # (id, addr)
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.logger = self.set_log()
-        self.only_main_thread = True
+        self.only_main_thread = False
         self.fix_fingure = FixFigure(self)
         self.stabilize = Stabilize(self)
 
@@ -126,7 +126,7 @@ class Node(Thread):
 
     def init_finger_table_with_nodes_info(self, id_addr_map):
         self.init_finger_table()
-        print(id_addr_map)
+        # print(id_addr_map)
         node_identifiers = sorted(id_addr_map.keys())
         id_pos = node_identifiers.index(self.id)  # position of this node in the nodes ring
         if id_pos == -1:
@@ -252,6 +252,16 @@ class Node(Thread):
                 print(str(e))
                 print('-------------------------------------------------------------------------------')
                 return -1, str(-1)
+
+    # RPC
+    def get_finger_table(self, request, context):
+        response = chord_service_pb2.GetFingerTableResponse()
+        for e in self.finger_table:
+            entry = response.table.add()
+            entry.id = int(e[0])
+            entry.successor_id = int(e[1][0])
+            entry.addr = int(e[1][1])
+        return response
 
 
 class LocalChordCluster():
