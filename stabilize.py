@@ -30,7 +30,7 @@ class Stabilize(Thread):
             suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
             print('[stabilize] {}: get_successors_predecessor() returned {} at {}'.format(self.node.id, suc_pre_id, suc_pre_addr))
             if suc_pre_id == -1:
-                print('[stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
+                print('ERROR [stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
                 self.node.delete_successor()
             elif suc_pre_addr == self.node.successor[0]:
