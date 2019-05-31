@@ -71,6 +71,9 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
+
+        if k == 0:
+           self.set_successor(successor_id, successor_addr)
         # print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
 
     def _join(self):
@@ -93,7 +96,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
 
     def join_in_chord_ring(self, response):
-        print("get successor: {} when join in the ring".format(str(response)))
+        #print("get successor: {} when join in the ring".format(str(response)))
         self.set_successor(response.successorId, response.addr)
         print('join_in_chord_ring(): the successor is: {} at {}'.format(response.successorId, response.addr))
         # update the first entry in the finger table
@@ -196,11 +199,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             else:
                 break
         return 0
-
+    
     # RPC
     def find_successor(self, request, context):
         # print("in find_successor---self.id:{}  self.addr:{}".format(self.id, self.addr))
-        # print('node {} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
+        print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
+        print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
         if self.id == 10:
             print('successor of node 10 is {}'.format(self.successor[0]))
@@ -283,8 +287,9 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def get_predecessor(self, request, context):
-        
+
         # print("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
+
         if not self.predecessor:
             # when node does not have a predecessor yet, return the node itself
             return chord_service_pb2.GetPredecessorResponse(id=self.id, addr=self.addr)
@@ -306,8 +311,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 return -1, str(-1)
 
     # RPC
-    def get_finger_table(self, request, context):
-        response = chord_service_pb2.GetFingerTableResponse()
+    def get_configuration(self, request, context):
+        response = chord_service_pb2.GetConfigurationResponse()
+        response.predecessorId = self.predecessor[0]
+        response.successorId = self.successor[0]
         for e in self.finger_table:
             entry = response.table.add()
             entry.id = int(e[0])
