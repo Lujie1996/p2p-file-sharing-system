@@ -3,6 +3,8 @@ import hashlib
 
 M = 5
 
+PRINT = True
+
 
 def find_offset(initial, final):
     ret = final - initial
