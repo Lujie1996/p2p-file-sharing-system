@@ -22,12 +22,14 @@ class Stabilize(Thread):
 
     def run(self):
         while True:
+            low = self.config['interval_lower_bound']
+            high = self.config['interval_upper_bound']
+            sleep_time = random.randint(low * 1000, high * 1000) / 1000.0
+            time.sleep(sleep_time)
+
             suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
             if suc_pre_id == -1:
-                print('[stabilize] #{}: get_successors_predecessor() failed. Successor failed to call other RPC'
-                      .format(self.node.id))
-            elif suc_pre_id == -2:
-                print('[stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed'
+                print('[stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
                 self.node.delete_successor()
             elif suc_pre_addr == self.node.successor[0]:
@@ -35,9 +37,4 @@ class Stabilize(Thread):
                 self.node.notify_successor()
             else:
                 if suc_pre_id != self.node.id:
-                    self.node.update_kth_finger_table_entry(1, suc_pre_id, suc_pre_addr)
-
-            low = self.config['interval_lower_bound']
-            high = self.config['interval_upper_bound']
-            sleep_time = random.randint(low * 1000, high * 1000) / 1000.0
-            time.sleep(sleep_time)
+                    self.node.update_kth_finger_table_entry(0, suc_pre_id, suc_pre_addr)

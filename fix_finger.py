@@ -22,22 +22,26 @@ class FixFigure(Thread):
 
     def run(self):
         while True:
-            self.fix_finger_table()
+
             low = self.config['interval_lower_bound']
             high = self.config['interval_upper_bound']
             sleep_time = random.randint(low * 1000, high * 1000) / 1000.0
             time.sleep(sleep_time)
 
+            self.fix_finger_table()
+
     def fix_finger_table(self):
         M = self.config['M']
-        for i in range(2, M + 1):
+        for i in range(2, M+1):
             # The successor of current node (case i == 1) is not checked, since it can be only checked in stabilizer
             ith_entry_id = (self.node.id + (2 ** (i-1))) % (2 ** M)
             successor_id, successor_addr = self.node.find_successor_local(ith_entry_id)
             if successor_id == -1:
-                print('[fix_fingure] #{}: find_successor_local() failed. ith_entry_id: {}'
+                print('[fix_finger] #{}: find_successor_local() failed, find_successor returned -1. ith_entry_id: {}'
+                      .format(self.node.id, ith_entry_id))
+            elif successor_id == -2:
+                print('[fix_finger] #{}: find_successor_local() failed. ith_entry_id: {}'
                       .format(self.node.id, ith_entry_id))
             else:
-                print('[fix_finger] #{}:  update_kth_finger_table_entry() failed. successor_id: {}, successor_addr: {}'
-                      .format(self.node.id, successor_id, successor_addr))
-                self.node.update_kth_finger_table_entry(successor_id, successor_addr)
+                if successor_id != self.node.finger_table[i-1][1][0]:
+                    self.node.update_kth_finger_table_entry(i-1, successor_id, successor_addr)
