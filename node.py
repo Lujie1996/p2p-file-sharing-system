@@ -14,10 +14,10 @@ from stabilize import Stabilize
 M = 5
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
+
 def get_hash_value(s):
     hash = hashlib.sha1()
     hash.update(str(s).encode())
-    # print('hashed value for {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
     return int(hash.hexdigest(), 16) % (2 ** M)
 
 
