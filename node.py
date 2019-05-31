@@ -237,16 +237,17 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 # return -2 when this RPC went wrong
 
     def closest_preceding_node(self, id):
-
         i = 0
         while i < len(self.finger_table) - 1:
             if id <= self.finger_table[i][1][0]:
+                print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
                 return self.finger_table[i-1][1]
             if self.id >= self.finger_table[i][1][0]:
                 if id <= self.finger_table[i][1][0] + 2 ** M:
+                    print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
                     return self.finger_table[i-1][1]
             i += 1
-        # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i][1])))
+        print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i][1])))
         return self.finger_table[i][1]
 
     def generate_find_successor_request(self, id, pathlen):
