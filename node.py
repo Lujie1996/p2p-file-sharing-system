@@ -126,17 +126,22 @@ class Node(Thread):
 
     def init_finger_table_with_nodes_info(self, id_addr_map):
         self.init_finger_table()
+        print(id_addr_map)
         node_identifiers = sorted(id_addr_map.keys())
         id_pos = node_identifiers.index(self.id)  # position of this node in the nodes ring
         if id_pos == -1:
             return
+
+        node_size = len(node_identifiers)
+        for k in range(node_size):
+            node_identifiers.append(node_identifiers[k] + 2 ** M)
 
         j = id_pos + 1
         for i in range(0, M):
             key = (self.id + 2 ** i) % (2 ** M)
             while j < len(node_identifiers):
                 if node_identifiers[j] >= key:
-                    successor_id = node_identifiers[j]
+                    successor_id = node_identifiers[j] % (2 ** M)
                     self.update_kth_finger_table_entry(i, successor_id, id_addr_map[successor_id])
                     break
                 j += 1
