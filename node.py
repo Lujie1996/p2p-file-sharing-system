@@ -22,7 +22,7 @@ def get_hash_value(s):
 
 
 class Node(chord_service_pb2_grpc.ChordServicer):
-    def __init__(self, local_addr, contact_to=None, initial_id_addr_map=None):
+    def __init__(self, local_addr, contact_to, initial_id_addr_map=None):
         self.addr = local_addr
         self.contact_to = contact_to
         self.id = get_hash_value(local_addr)
@@ -74,6 +74,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def _join(self):
         # join in a chord ring by connecting to the contact_to node
         if not self.contact_to:
+            print("No contact_to is specified!")
             return
 
         with grpc.insecure_channel(self.contact_to) as channel:
@@ -297,7 +298,7 @@ class LocalChordCluster():
 def serve(addr, id_addr_map):
     print("starting rpc server: {}".format(addr))
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
-    chord_service_pb2_grpc.add_ChordServicer_to_server(Node(addr, id_addr_map), server)
+    chord_service_pb2_grpc.add_ChordServicer_to_server(Node(addr, None, id_addr_map), server)
 
     server.add_insecure_port(addr)
     try:
