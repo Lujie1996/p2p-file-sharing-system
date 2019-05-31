@@ -69,7 +69,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             self.finger_table.append((key, l))
 
     def update_kth_finger_table_entry(self, k, successor_id, successor_addr):
-        #print('*****NOW UPDATE FINGER ENTRY*****')
+        # print('*****NOW UPDATE FINGER ENTRY*****')
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
@@ -135,6 +135,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if self.initial_id_addr_map is None:
             return
         node_identifiers = sorted(self.initial_id_addr_map.keys())
+        # [id1, id2, id3, ...]
 
         id_pos = node_identifiers.index(self.id)  # position of this node in the nodes ring
         if id_pos == -1:
@@ -153,7 +154,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         j = id_pos + 1
         for i in range(0, M):
-            key = (self.id + 2 ** i) % (2 ** M)
+            key = self.id + 2 ** i
             while j < len(node_identifiers):
                 if node_identifiers[j] >= key:
                     successor_id = node_identifiers[j] % (2 ** M)
@@ -227,7 +228,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             stub = chord_service_pb2_grpc.ChordStub(channel)
             try:
                 response = stub.find_successor(request, timeout=20)
-                print('{} looks for id {}, return is {}'.format(self.id, request.id, response.successorId))
+                # print('{} looks for id {}, return is {}'.format(self.id, request.id, response.successorId))
                 return response.successorId, response.addr
                 # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception as e:
@@ -240,14 +241,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         i = 0
         while i < len(self.finger_table):
             if id <= self.finger_table[i][1][0]:
-                print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
+                # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
                 return self.finger_table[i-1][1]
             if self.id >= self.finger_table[i][1][0]:
-                if id <= self.finger_table[i][1][0] + 2 ** M:
-                    print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
+                if self.id >= id and id <= self.finger_table[i][1][0] or self.id < id:
+                    # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i-1][1])))
                     return self.finger_table[i-1][1]
             i += 1
-        print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[-1][1])))
+        # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[-1][1])))
         return self.finger_table[-1][1]
 
     def generate_find_successor_request(self, id, pathlen):
@@ -306,7 +307,7 @@ class LocalChordCluster():
         for i, node_id in enumerate(node_identifiers):
             thread = threading.Thread(target=serve, args=(id_addr_map[node_id], id_addr_map))
             thread.start()
-            time.sleep(0.5)
+            # time.sleep(0.1)
             print('Node {} started at {}...'.format(node_id, id_addr_map[node_id]))
 
 
