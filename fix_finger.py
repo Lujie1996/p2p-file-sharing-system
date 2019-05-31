@@ -13,7 +13,7 @@ def parse_config():
     return config
 
 
-class FixFigure(Thread):
+class FixFinger(Thread):
 
     def __init__(self, node):
         Thread.__init__(self)

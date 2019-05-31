@@ -1,16 +1,22 @@
-from node import Node, LocalChordCluster
+from node import LocalChordCluster, serve_join
+from utils import *
 
 
 def start_chord():
     input_str = str(input('Specify N to initialize the system with N nodes, or type \'j\' to join an existing system\n'))
     if input_str == 'j':
-        local_addr = str(input('Input the address of current node (IP:Port)\n'))
-        dest_addr = str(input('Input the address of an existing node to connect to (IP:Port)\n'))
-        if local_addr.count(':') != 1 or dest_addr.count(':') != 1:
-            print('Wrong address')
-        else:
-            Node(local_addr, dest_addr).start()
-            print('Node has started at {} connected to {}'.format(local_addr, dest_addr))
+        print('Here is a list of addresses that will not conflict with each other in Chord ring')
+        unique_addr = get_unique_addr_list(15)
+        for i in range(15):
+            print('{}: {}'.format(i, unique_addr[i]))
+
+        local_addr = str(input('Select the address of current node by index\n'))
+        dest_addr = str(input('Select the address of an existing node to connect to by index\n'))
+        local_addr = unique_addr[int(local_addr)]
+        dest_addr = unique_addr[int(dest_addr)]
+
+        serve_join(local_addr, dest_addr)
+        print('Node has started at {} connected to {}'.format(local_addr, dest_addr))
     else:
         number_of_nodes = int(input_str)
         if number_of_nodes <= 0:
@@ -18,12 +24,8 @@ def start_chord():
         elif number_of_nodes >= 100:
             print('Too many nodes to start')
         else:
-            ip = 'localhost'
-            start_port = 50000
-            addr_list = list()
-            for i in range(number_of_nodes):
-                addr = (ip + ':' + str(start_port + i))
-                addr_list.append(addr)
+            addr_list = get_unique_addr_list(number_of_nodes)
+            print(addr_list)
             LocalChordCluster(addr_list).start()
 
 
