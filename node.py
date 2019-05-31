@@ -26,7 +26,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
-        self.only_main_thread = True
+        self.only_main_thread = False
         self.fix_finger = FixFinger(self)
         self.stabilize = Stabilize(self)
         self.run()
@@ -71,6 +71,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
+        if k == 0:
+           self.set_successor(successor_id, successor_addr)
         #print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
 
     def _join(self):
