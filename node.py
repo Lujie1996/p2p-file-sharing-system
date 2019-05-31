@@ -286,6 +286,7 @@ class LocalChordCluster():
         id_addr_map = dict()
         for addr in self.addr_list:
             node_id = get_hash_value(addr)
+            print(node_id)
             id_addr_map[node_id] = addr
         node_identifiers = sorted(id_addr_map.keys())
 

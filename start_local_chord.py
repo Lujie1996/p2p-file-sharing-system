@@ -23,6 +23,7 @@ def start_chord():
             addr_list = list()
             for i in range(number_of_nodes):
                 addr = (ip + ':' + str(start_port + i))
+                print("---------------" + str(addr) + "---------------")
                 addr_list.append(addr)
             LocalChordCluster(addr_list).start()
 
