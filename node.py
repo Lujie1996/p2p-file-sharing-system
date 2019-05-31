@@ -1,6 +1,8 @@
+import sys
 import grpc
+import time
 import hashlib
-from threading import Thread
+from concurrent import futures
 import chord_service_pb2
 import chord_service_pb2_grpc
 from logging import Logger, StreamHandler, Formatter
@@ -9,7 +11,7 @@ from stabilize import Stabilize
 
 
 M = 5
-
+_ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 def get_hash_value(s):
     hash = hashlib.sha1()
@@ -18,19 +20,20 @@ def get_hash_value(s):
     return int(hash.hexdigest(), 16) % (2 ** M)
 
 
-class Node(Thread):
-    def __init__(self, local_addr, contact_to=None):
-        super().__init__()
+class Node(chord_service_pb2_grpc.ChordServicer):
+    def __init__(self, local_addr, contact_to=None, initial_id_addr_map=None):
         self.addr = local_addr
         self.contact_to = contact_to
         self.id = get_hash_value(local_addr)
         self.predecessor = None  # (id, addr)
         self.successor = None  # (id, addr)
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
+        self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
         self.only_main_thread = True
         self.fix_fingure = FixFigure(self)
         self.stabilize = Stabilize(self)
+        self.run()
 
     def set_log(self):
         logger = Logger(-1)
@@ -48,13 +51,11 @@ class Node(Thread):
         self.successor = (id, addr)
 
     def run(self):
-        if len(self.finger_table) == 0:
-            self.init_finger_table()
-
+        # initialize the finger table and set the predecessor as well as successor
+        self.initialize_with_node_info()
         if not self.only_main_thread:
             self.fix_fingure.start()
             self.stabilize.start()
-
         print('[node] #{}: finger table: {}'.format(self.id, self.finger_table))
 
     def init_finger_table(self):
@@ -124,14 +125,22 @@ class Node(Thread):
             self.predecessor = (request.predecessorId, request.addr)
             return chord_service_pb2.NotifyResponse(result=1)
 
-    def init_finger_table_with_nodes_info(self, id_addr_map):
+    def initialize_with_node_info(self):
         self.init_finger_table()
-        print(id_addr_map)
-        node_identifiers = sorted(id_addr_map.keys())
+        if self.initial_id_addr_map is None:
+            return
+        node_identifiers = sorted(self.initial_id_addr_map.keys())
         id_pos = node_identifiers.index(self.id)  # position of this node in the nodes ring
         if id_pos == -1:
             return
 
+        # set the predecessor and successor by the initial node
+        pre_id = node_identifiers[id_pos - 1] if id_pos > 0 else node_identifiers[-1]
+        self.set_predecessor(pre_id, self.initial_id_addr_map[pre_id])
+        succ_id = node_identifiers[id_pos + 1] if id_pos < len(node_identifiers) - 1 else node_identifiers[0]
+        self.set_successor(succ_id, self.initial_id_addr_map[succ_id])
+
+        # initialize the finger table
         node_size = len(node_identifiers)
         for k in range(node_size):
             node_identifiers.append(node_identifiers[k] + 2 ** M)
@@ -142,7 +151,7 @@ class Node(Thread):
             while j < len(node_identifiers):
                 if node_identifiers[j] >= key:
                     successor_id = node_identifiers[j] % (2 ** M)
-                    self.update_kth_finger_table_entry(i, successor_id, id_addr_map[successor_id])
+                    self.update_kth_finger_table_entry(i, successor_id, self.initial_id_addr_map[successor_id])
                     break
                 j += 1
 
@@ -172,6 +181,7 @@ class Node(Thread):
                     suc_info[1] = None
             else:
                 break
+        return 0
 
     # RPC
     def find_successor(self, request, context):
@@ -268,11 +278,27 @@ class LocalChordCluster():
         node_identifiers = sorted(id_addr_map.keys())
 
         for i, node_id in enumerate(node_identifiers):
-            node = Node(id_addr_map[node_id])
-            pre_id = node_identifiers[i - 1] if i > 0 else node_identifiers[-1]
-            node.set_predecessor(pre_id, id_addr_map[pre_id])
-            succ_id = node_identifiers[i + 1] if i < len(node_identifiers) - 1 else node_identifiers[0]
-            node.set_successor(succ_id, id_addr_map[succ_id])
+            serve(id_addr_map[node_id], id_addr_map)
 
-            node.init_finger_table_with_nodes_info(id_addr_map)
-            node.start()
+
+def serve(addr, id_addr_map):
+    print("starting rpc server: {}".format(addr))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
+    chord_service_pb2_grpc.add_ChordServicer_to_server(Node(addr, id_addr_map), server)
+
+    server.add_insecure_port(addr)
+    try:
+        server.start()
+    except Exception as e:
+        print('Server start failed!')
+        print(str(e))
+    try:
+        while True:
+            time.sleep(_ONE_DAY_IN_SECONDS)
+    except KeyboardInterrupt:
+        server.stop(0)
+
+
+if __name__ == "__main__":
+    addr = sys.argv[1]
+    serve(addr)
