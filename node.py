@@ -71,6 +71,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
+        if k == 0:
+           self.set_successor(successor_id, successor_addr)
         #print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
 
     def _join(self):
@@ -195,11 +197,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             else:
                 break
         return 0
-
+    
     # RPC
     def find_successor(self, request, context):
         # print("in find_successor---self.id:{}  self.addr:{}".format(self.id, self.addr))
-        # print('node {} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
+        print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
+        print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
