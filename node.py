@@ -57,7 +57,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if not self.only_main_thread:
             self.fix_fingure.start()
             self.stabilize.start()
-        print('[node] #{}: finger table: {}'.format(self.id, self.finger_table))
+        print('[node] #{}: finger table: {}; successor: {}; predecessor: {}'
+              .format(self.id, self.finger_table, self.successor, self.predecessor))
 
     def init_finger_table(self):
         for i in range(0, M):
@@ -67,6 +68,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             self.finger_table.append((key, l))
 
     def update_kth_finger_table_entry(self, k, successor_id, successor_addr):
+        print('*****NOW UPDATE FINGER ENTRY*****')
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
@@ -160,6 +162,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     def delete_successor(self):
         # delete the successor from finger table and fill in with the most recent successor after that
+        print('*****NOW DELETE SUCCESSOR*****')
         if self.successor is None:
             return -1
 
@@ -188,13 +191,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def find_successor(self, request, context):
+        # print('node {} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
-        elif self.id < request.id <= self.successor[0]:
+        elif self.id < request.id <= self.successor[0] or self.id < request.id + 2 ** M <= self.successor[0] + 2 ** M:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.addr)
         else:
             next_id, next_address = self.closest_preceding_node(request.id)
@@ -206,7 +210,9 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 new_request = self.generate_find_successor_request(request.id, request.pathlen + 1)
                 try:
                     response = stub.find_successor(new_request, timeout=20)
-                except Exception:
+                except Exception as e:
+                    # print('2nd RPC failed')
+                    print(str(e))
                     # self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, next_id))
                     return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
@@ -220,24 +226,26 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             stub = chord_service_pb2_grpc.ChordStub(channel)
             try:
                 response = stub.find_successor(request, timeout=20)
+                # print('{} looks for id {}, return is {}'.format(self.id, request.id, response.successorId))
                 return response.successorId, response.addr
                 # if this RPC is fine, but it fails to call next RPC, the return is -1
             except Exception as e:
-                print('[node] #{}: find_successor_local() failed at RPC'.format(self.id))
+                # print('[node] #{}: find_successor_local() failed at RPC'.format(self.id))
                 print(str(e))
                 return -2, str(-2)
                 # return -2 when this RPC went wrong
 
     def closest_preceding_node(self, id):
+
         i = 0
         while i < len(self.finger_table) - 1:
             if id <= self.finger_table[i][1][0]:
-                break
+                return self.finger_table[i-1][1]
             if self.id >= self.finger_table[i][1][0]:
                 if id <= self.finger_table[i][1][0] + 2 ** M:
-                    break
+                    return self.finger_table[i-1][1]
             i += 1
-
+        # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(self.finger_table[i][1])))
         return self.finger_table[i][1]
 
     def generate_find_successor_request(self, id, pathlen):
