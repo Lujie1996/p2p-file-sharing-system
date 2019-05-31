@@ -31,7 +31,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
-        self.only_main_thread = True
+        self.only_main_thread = False
         self.fix_fingure = FixFigure(self)
         self.stabilize = Stabilize(self)
         self.run()
