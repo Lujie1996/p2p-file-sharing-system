@@ -1,6 +1,7 @@
 import sys
 import grpc
 import time
+import random
 import hashlib
 import threading
 from concurrent import futures
@@ -54,6 +55,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def run(self):
         # initialize the finger table and set the predecessor as well as successor
         self.initialize_with_node_info()
+        self._join()
         if not self.only_main_thread:
             self.fix_fingure.start()
             self.stabilize.start()
@@ -72,13 +74,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
+        #print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
 
     def _join(self):
         # join in a chord ring by connecting to the contact_to node
         if not self.contact_to:
             print("No contact_to is specified!")
             return
-
+        print("contact to {} when node {} join in".format(self.contact_to, self.id))
         with grpc.insecure_channel(self.contact_to) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             new_request = self.generate_find_successor_request(self.id, 0)
@@ -86,10 +89,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 # TODO: read timeout value from config.txt
                 response = stub.find_successor(new_request, timeout=20)
                 self.join_in_chord_ring(response)
-            except Exception:
+            except Exception as e: 
+                print("Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
 
     def join_in_chord_ring(self, response):
+        print("get successor: {} when join in the ring".format(str(response)))
         self.set_successor(response.successorId, response.addr)
         # update the first entry in the finger table
         self.finger_table[0][1][0] = response.successorId
@@ -102,9 +107,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 find_predecessor_res = stub.get_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
-                    self.predecessor = (find_predecessor_res.predecessorId, find_predecessor_res.addr)
-            except Exception:
-                self.logger.error("Node#{} error when find_predecessor to {}".format(self.id, response.addr))
+                    self.predecessor = (find_predecessor_res.id, find_predecessor_res.addr)
+                print("get predecessor response is {}".format(str(find_predecessor_res)))
+            except Exception as e: 
+                self.logger.error("%%%%%Node#{} error when find_predecessor to {}".format(self.id, response.addr))
 
         self.notify_successor()
 
@@ -122,6 +128,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def notify(self, request, context):
+        print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
         if request is None or request.predecessorId is None:
             return chord_service_pb2.NotifyResponse(result=-1)
 
@@ -152,7 +159,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         j = id_pos + 1
         for i in range(0, M):
-            key = (self.id + 2 ** i) % (2 ** M)
+            key = self.id + 2 ** i
             while j < len(node_identifiers):
                 if node_identifiers[j] >= key:
                     successor_id = node_identifiers[j] % (2 ** M)
@@ -199,7 +206,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
         elif self.id < request.id <= self.successor[0] or self.id < request.id + 2 ** M <= self.successor[0] + 2 ** M:
-            return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.addr)
+            return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.successor[1])
         else:
             next_id, next_address = self.closest_preceding_node(request.id)
             if self.id == next_id:  # There is only one node in chord ring
@@ -256,6 +263,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def get_predecessor(self, request, context):
+        
+        print("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
         if not self.predecessor:
             # when node does not have a predecessor yet, return the node itself
             return chord_service_pb2.GetPredecessorResponse(id=self.id, addr=self.addr)
@@ -301,14 +310,14 @@ class LocalChordCluster():
         node_identifiers = sorted(id_addr_map.keys())
 
         for i, node_id in enumerate(node_identifiers):
-            thread = threading.Thread(target=serve, args=(id_addr_map[node_id], id_addr_map))
+            thread = threading.Thread(target=serve, args=(id_addr_map[node_id], None, id_addr_map))
             thread.start()
 
 
-def serve(addr, id_addr_map):
+def serve(addr, contact_to, id_addr_map=None):
     print("starting rpc server: {}".format(addr))
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
-    chord_service_pb2_grpc.add_ChordServicer_to_server(Node(addr, None, id_addr_map), server)
+    chord_service_pb2_grpc.add_ChordServicer_to_server(Node(addr, contact_to, id_addr_map), server)
 
     server.add_insecure_port(addr)
     try:
@@ -325,4 +334,5 @@ def serve(addr, id_addr_map):
 
 if __name__ == "__main__":
     addr = sys.argv[1]
-    serve(addr)
+    contact_to = "localhost:{}".format(random.randint(50000, 50002))
+    serve(addr, contact_to)
