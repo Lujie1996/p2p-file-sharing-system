@@ -29,10 +29,10 @@ class ChordStub(object):
         request_serializer=chord__service__pb2.NotifyRequest.SerializeToString,
         response_deserializer=chord__service__pb2.NotifyResponse.FromString,
         )
-    self.get_finger_table = channel.unary_unary(
-        '/chordService.Chord/get_finger_table',
-        request_serializer=chord__service__pb2.GetFingerTableRequest.SerializeToString,
-        response_deserializer=chord__service__pb2.GetFingerTableResponse.FromString,
+    self.get_configuration = channel.unary_unary(
+        '/chordService.Chord/get_configuration',
+        request_serializer=chord__service__pb2.GetConfigurationRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.GetConfigurationResponse.FromString,
         )
 
 
@@ -61,7 +61,7 @@ class ChordServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def get_finger_table(self, request, context):
+  def get_configuration(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -86,10 +86,10 @@ def add_ChordServicer_to_server(servicer, server):
           request_deserializer=chord__service__pb2.NotifyRequest.FromString,
           response_serializer=chord__service__pb2.NotifyResponse.SerializeToString,
       ),
-      'get_finger_table': grpc.unary_unary_rpc_method_handler(
-          servicer.get_finger_table,
-          request_deserializer=chord__service__pb2.GetFingerTableRequest.FromString,
-          response_serializer=chord__service__pb2.GetFingerTableResponse.SerializeToString,
+      'get_configuration': grpc.unary_unary_rpc_method_handler(
+          servicer.get_configuration,
+          request_deserializer=chord__service__pb2.GetConfigurationRequest.FromString,
+          response_serializer=chord__service__pb2.GetConfigurationResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
