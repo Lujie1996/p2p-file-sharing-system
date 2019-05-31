@@ -31,7 +31,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
-        self.only_main_thread = True
+        self.only_main_thread = False
         self.fix_fingure = FixFigure(self)
         self.stabilize = Stabilize(self)
         self.run()
@@ -188,13 +188,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def find_successor(self, request, context):
+        # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
-        elif self.id < request.id <= self.successor:
-            return chord_service_pb2.FindSuccessorResponse(successorId=self.successor, pathlen=request.pathlen+1, addr=self.addr)
+        elif self.id < request.id <= self.successor[0]:
+            return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.addr)
         else:
             next_id, next_address = self.closest_preceding_node(request.id)
             if self.id == next_id:  # There is only one node in chord ring
@@ -221,8 +222,9 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 response = stub.find_successor(request, timeout=20)
                 return response.successorId, response.addr
                 # if this RPC is fine, but it fails to call next RPC, the return is -1
-            except Exception:
+            except Exception as e:
                 print('[node] #{}: find_successor_local() failed at RPC'.format(self.id))
+                print(str(e))
                 return -2, str(-2)
                 # return -2 when this RPC went wrong
 
