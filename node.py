@@ -30,7 +30,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.finger_table = []  # [(key, [successor_id, successor_address(ip:port)])]
         self.initial_id_addr_map = initial_id_addr_map
         self.logger = self.set_log()
-        self.only_main_thread = True
+        self.only_main_thread = False
         self.fix_fingure = FixFigure(self)
         self.stabilize = Stabilize(self)
         self.run()
@@ -130,6 +130,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if self.initial_id_addr_map is None:
             return
         node_identifiers = sorted(self.initial_id_addr_map.keys())
+
         id_pos = node_identifiers.index(self.id)  # position of this node in the nodes ring
         if id_pos == -1:
             return
@@ -262,6 +263,16 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 print(str(e))
                 print('-------------------------------------------------------------------------------')
                 return -1, str(-1)
+
+    # RPC
+    def get_finger_table(self, request, context):
+        response = chord_service_pb2.GetFingerTableResponse()
+        for e in self.finger_table:
+            entry = response.table.add()
+            entry.id = int(e[0])
+            entry.successor_id = int(e[1][0])
+            entry.addr = int(e[1][1])
+        return response
 
 
 class LocalChordCluster():
