@@ -28,6 +28,7 @@ class Stabilize(Thread):
             time.sleep(sleep_time)
 
             suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
+            print('[stabilize] {}: get_successors_predecessor() returned {} at {}'.format(self.node.id, suc_pre_id, suc_pre_addr))
             if suc_pre_id == -1:
                 print('[stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
@@ -37,4 +38,6 @@ class Stabilize(Thread):
                 self.node.notify_successor()
             else:
                 if suc_pre_id != self.node.id:
+                    print('[stabilize] {}: will update successor to {}'.format(self.node.id, suc_pre_id))
                     self.node.update_kth_finger_table_entry(0, suc_pre_id, suc_pre_addr)
+                    print('[stabilize] {}: successor has been changed to {}'.format(self.node.id, self.node.successor))

@@ -13,6 +13,7 @@ def get_finger_table_of_all_nodes(number_of_nodes):
         print('Node #{} at {}'.format(get_hash_value(addr), addr))
         get_finger_table(addr)
 
+
 def get_finger_table(addr):
     with grpc.insecure_channel(addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
@@ -24,14 +25,15 @@ def get_finger_table(addr):
             except Exception as e:
                 print(e)
 
+
 def start(args):
-   debug_type = args[1]
-   if debug_type == "one_finger_table":
-      addr = args[2]
-      get_finger_table(addr)
-   elif debug_type == "all":
-      number_of_nodes = int(input('Number of nodes in Chord:\n'))
-      get_finger_table_of_all_nodes(number_of_nodes)
+    debug_type = args[1]
+    if debug_type == "one_finger_table":
+        addr = args[2]
+        get_finger_table(addr)
+    elif debug_type == "all":
+        number_of_nodes = int(input('Number of nodes in Chord:\n'))
+        get_finger_table_of_all_nodes(number_of_nodes)
       
    
 if __name__ == "__main__":

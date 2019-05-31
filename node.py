@@ -71,7 +71,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         entry = self.finger_table[k]
         entry[1][0] = successor_id
         entry[1][1] = successor_addr
-        #print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
+        # print('node {} updated finger table is: {}'.format(self.id, str(self.finger_table)))
 
     def _join(self):
         # join in a chord ring by connecting to the contact_to node
@@ -202,12 +202,16 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # print("in find_successor---self.id:{}  self.addr:{}".format(self.id, self.addr))
         # print('node {} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
+        if self.id == 10:
+            print('successor of node 10 is {}'.format(self.successor[0]))
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
         elif self.id < request.id <= self.successor[0] or self.id > self.successor[0] and (request.id > self.id or request.id <= self.successor[0]):
+            if self.id == 10 and request.id == 12:
+                print('entering right place')
             return chord_service_pb2.FindSuccessorResponse(successorId=self.successor[0], pathlen=request.pathlen+1, addr=self.successor[1])
         else:
             next_id, next_address = self.closest_preceding_node(request.id)
@@ -266,9 +270,9 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 # TODO: Check if it is alive
                 # query = query_to_address(ith_finger, Message.get_json_dump("areyoualive"))
                 # if query["subject"] == "iamalive":
-                # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
+                print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
                 return ith_finger_id, ith_finger_addr
-
+        print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, self.finger_table[0][1][0]))
         return self.finger_table[0][1]
 
     def generate_find_successor_request(self, id, pathlen):
@@ -280,7 +284,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     # RPC
     def get_predecessor(self, request, context):
         
-        print("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
+        # print("node {} received RPC call to get predecessor {}".format(self.id, str(self.predecessor)))
         if not self.predecessor:
             # when node does not have a predecessor yet, return the node itself
             return chord_service_pb2.GetPredecessorResponse(id=self.id, addr=self.addr)
@@ -331,9 +335,6 @@ class LocalChordCluster():
             thread.start()
             # time.sleep(0.1)
             print('Node {} started at {}...'.format(node_id, id_addr_map[node_id]))
-
-
-
 
 
 def serve(addr, id_addr_map=None):
