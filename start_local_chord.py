@@ -1,4 +1,29 @@
 from node import Node, LocalChordCluster
+import hashlib
+
+
+M = 5
+
+
+def get_hash_value(s):
+    hash = hashlib.sha1()
+    hash.update(str(s).encode())
+    # print('hash value of {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
+    return int(hash.hexdigest(), 16) % (2 ** M)
+
+
+def get_unique_addr_list(n):
+    unique = dict()
+    ip = 'localhost'
+    port = 50000
+
+    while len(unique) != n:
+        addr = (ip + ':' + str(port))
+        port += 1
+        hashed = get_hash_value(addr)
+        if hashed not in unique:
+            unique[hashed] = addr
+    return unique
 
 
 def start_chord():
@@ -18,12 +43,8 @@ def start_chord():
         elif number_of_nodes >= 100:
             print('Too many nodes to start')
         else:
-            ip = 'localhost'
-            start_port = 50000
-            addr_list = list()
-            for i in range(number_of_nodes):
-                addr = (ip + ':' + str(start_port + i))
-                addr_list.append(addr)
+            addr_list = list(get_unique_addr_list(number_of_nodes).values())
+            print(addr_list)
             LocalChordCluster(addr_list).start()
 
 

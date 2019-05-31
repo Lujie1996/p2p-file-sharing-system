@@ -18,6 +18,7 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 def get_hash_value(s):
     hash = hashlib.sha1()
     hash.update(str(s).encode())
+    # print('hash value of {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
     return int(hash.hexdigest(), 16) % (2 ** M)
 
 
@@ -303,6 +304,8 @@ class LocalChordCluster():
         for i, node_id in enumerate(node_identifiers):
             thread = threading.Thread(target=serve, args=(id_addr_map[node_id], id_addr_map))
             thread.start()
+            time.sleep(0.5)
+            print('Node {} started at {}...'.format(node_id, id_addr_map[node_id]))
 
 
 def serve(addr, id_addr_map):
