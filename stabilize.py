@@ -3,6 +3,7 @@
 from threading import Thread
 import random
 import time
+from utils import *
 
 
 def parse_config():
@@ -29,13 +30,15 @@ class Stabilize(Thread):
 
             try:
                 suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
-                print('[stabilize] {}: get_successors_predecessor() returned {} at {}'.format(self.node.id, suc_pre_id,
+                if PRINT:
+                    print('[stabilize] {}: get_successors_predecessor() returned {} at {}'.format(self.node.id, suc_pre_id,
                                                                                               suc_pre_addr))
             except:
                 suc_pre_id = -1
 
             if suc_pre_id == -1:
-                print('ERROR [stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
+                if PRINT:
+                    print('ERROR [stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
                 self.node.delete_successor()
             elif suc_pre_addr == self.node.successor[0]:
@@ -43,6 +46,8 @@ class Stabilize(Thread):
                 self.node.notify_successor()
             else:
                 if suc_pre_id != self.node.id:
-                    print('[stabilize] {}: will update successor to {}'.format(self.node.id, suc_pre_id))
+                    if PRINT:
+                        print('[stabilize] {}: will update successor to {}'.format(self.node.id, suc_pre_id))
                     self.node.update_kth_finger_table_entry(0, suc_pre_id, suc_pre_addr)
-                    print('[stabilize] {}: successor has been changed to {}'.format(self.node.id, self.node.successor))
+                    if PRINT:
+                        print('[stabilize] {}: successor has been changed to {}'.format(self.node.id, self.node.successor))

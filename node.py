@@ -146,7 +146,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         predecessor_id_offset = find_offset(self.predecessor[0], self.id)
         request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
-        print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
+        # print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
 
         if request_predecessor_id_offset <= predecessor_id_offset:
             self.predecessor = (request.predecessorId, request.addr)
@@ -224,16 +224,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         #print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
         #print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
-        if self.id == 10:
-            print('successor of node 10 is {}'.format(self.successor[0]))
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
-        if request.id == 26 and self.id == 18:
-            print('offset:')
-            print(find_offset(self.id, request.id))
-            print(find_offset(self.id, self.successor[0]))
-            print('successor of {} is {}'.format(self.id, self.successor))
+        # if request.id == 26 and self.id == 18:
+        #     print('offset:')
+        #     print(find_offset(self.id, request.id))
+        #     print(find_offset(self.id, self.successor[0]))
+        #     print('successor of {} is {}'.format(self.id, self.successor))
 
         if request.id == self.id:
             return chord_service_pb2.FindSuccessorResponse(successorId=self.id, pathlen=request.pathlen, addr=self.addr)
@@ -297,12 +295,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 # query = query_to_address(ith_finger, Message.get_json_dump("areyoualive"))
                 # if query["subject"] == "iamalive":
 
-                print('node {} looks for the closest_preceding_node of {}, return {}. code location 1'.format(self.id, id, str(ith_finger_id)))
+                # print('node {} looks for the closest_preceding_node of {}, return {}. code location 1'.format(self.id, id, str(ith_finger_id)))
                 if ith_finger_id == -1:
                     print('ERROR [node] {}, finger table is:{}'.format(self.id, str(self.finger_table)))
                 #print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
                 return ith_finger_id, ith_finger_addr
-        print('node {} looks for the closest_preceding_node of {}, return {}. code location 2'.format(self.id, id, self.finger_table[0][1][0]))
+        # print('node {} looks for the closest_preceding_node of {}, return {}. code location 2'.format(self.id, id, self.finger_table[0][1][0]))
         return self.finger_table[0][1]
 
     def generate_find_successor_request(self, id, pathlen):
