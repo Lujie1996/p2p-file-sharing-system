@@ -110,14 +110,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 find_predecessor_res = stub.get_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
-                    self.predecessor = (find_predecessor_res.id, find_predecessor_res.addr)
+                    self.predecessor = self.set_predecessor(find_predecessor_res.id, find_predecessor_res.addr)
                 print("get predecessor response is {}".format(str(find_predecessor_res)))
             except Exception as e: 
                 self.logger.error("%%%%%Node#{} error when find_predecessor to {}".format(self.id, response.addr))
 
-        self.notify_successor()
+        self.notify_successor(type='join')
 
-    def notify_successor(self):
+    def notify_successor(self, type):
         # used to contact successor and notify the existence of current node
         if self.successor is None:
             return
@@ -127,12 +127,15 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             stub = chord_service_pb2_grpc.ChordStub(channel)
             notify_req = chord_service_pb2.NotifyRequest(predecessorId=self.id, addr=self.addr)
             try:
-                notify_res = stub.notify(notify_req, timeout=20)
+                if type == 'join':
+                    notify_res = stub.notify_at_join(notify_req, timeout=20)
+                if type == 'leave':
+                    notify_res = stub.notify_at_leave(notify_req, timeout=20)
             except Exception:
                 self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
 
     # RPC
-    def notify(self, request, context):
+    def notify_at_join(self, request, context):
         print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
         if request is None or request.predecessorId is None:
             print("1st if")
@@ -140,19 +143,35 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         if self.predecessor is None:
             print("2nd if")
-            self.predecessor = (request.predecessorId, request.addr)
+            self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
             return chord_service_pb2.NotifyResponse(result=0)
 
-        predecessor_id_offset = find_offset(self.predecessor[0], self.id)
-        request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
+        #predecessor_id_offset = find_offset(self.predecessor[0], self.id)
+        #request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
-        print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
+        # print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
 
-        if request_predecessor_id_offset <= predecessor_id_offset:
-            self.predecessor = (request.predecessorId, request.addr)
+        self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
+        return chord_service_pb2.NotifyResponse(result=0)
+
+    def notify_at_leave(self, request, context):
+        print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
+        if request is None or request.predecessorId is None:
+            print("1st if")
+            return chord_service_pb2.NotifyResponse(result=-1)
+
+        if self.predecessor is None:
+            print("2nd if")
+            self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
             return chord_service_pb2.NotifyResponse(result=0)
 
-        return chord_service_pb2.NotifyResponse(result=1)
+        #predecessor_id_offset = find_offset(self.predecessor[0], self.id)
+        #request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
+
+        # print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
+
+        self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
+        return chord_service_pb2.NotifyResponse(result=0)
 
     def initialize_with_node_info(self):
         self.init_finger_table()
@@ -228,7 +247,6 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
-
         search_id_offset = find_offset(self.id, request.id)
         successor_id_offset = find_offset(self.id, self.successor[0])
 
@@ -247,7 +265,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 try:
                     response = stub.find_successor(new_request, timeout=20)
                 except Exception as e:
-                    print('2nd RPC failed')
+                    print('next_address:{}  request_id:{}  succesor_id:{}  2nd RPC failed'.format(next_address, request.id, self.successor[0]))
                     # self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, next_id))
                     return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
 
@@ -297,6 +315,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                     print('ERROR [node] {}, finger table is:{}'.format(self.id, str(self.finger_table)))
                 #print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
                 return ith_finger_id, ith_finger_addr
+
         return self.finger_table[0][1]
 
     def generate_find_successor_request(self, id, pathlen):
