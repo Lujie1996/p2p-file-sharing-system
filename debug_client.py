@@ -13,6 +13,7 @@ def get_configuration_of_all_nodes(number_of_nodes):
         print('Node #{} at {}'.format(get_hash_value(addr), addr))
         get_node_configuration(addr)
 
+
 def get_node_configuration(addr):
     with grpc.insecure_channel(addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
@@ -27,13 +28,13 @@ def get_node_configuration(addr):
 
 
 def start(args):
-   debug_type = args[1]
-   if debug_type == "one_node_configuration":
-      addr = args[2]
-      get_node_configuration(addr)
-   elif debug_type == "all":
-      number_of_nodes = int(input('Number of nodes in Chord:\n'))
-      get_configuration_of_all_nodes(number_of_nodes)
+    debug_type = args[1]
+    if debug_type == "one_node_configuration":
+        addr = args[2]
+        get_node_configuration(addr)
+    elif debug_type == "all":
+        number_of_nodes = int(input('Number of nodes in Chord:\n'))
+        get_configuration_of_all_nodes(number_of_nodes)
       
    
 if __name__ == "__main__":
