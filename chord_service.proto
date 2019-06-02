@@ -41,7 +41,7 @@ message NotifyRequest {
     string addr = 2;
 }
 
-message OnePair {
+message Pair {
     string key = 1;
     int32 len = 2;
     int32 seq_num = 3;
@@ -50,15 +50,7 @@ message OnePair {
 
 message NotifyResponse {
     int32 result = 1;
-    repeated OnePair pairs = 2;
-}
-
-message CheckRequest {
-    repeated OnePair pairs = 1;
-}
-
-message CheckResponse {
-    int32 result = 1;
+    repeated Pair pairs = 2;
 }
 
 message GetConfigurationRequest {
@@ -80,26 +72,13 @@ message GetRequest {
    repeated string keys = 1;
 }
 
-message Pair {
-        string key = 1;
-        int32 len = 2;
-        repeated string addrs = 3;
-}
-
 message GetResponse {
     int32 result = 1;
     repeated Pair pairs = 2;
 }
 
-message OnePair {
-    string key = 1;
-    int32 len = 2;
-    int32 seq_num = 3;
-    string addr = 4;
-}
-
 message PutRequest {
-    repeated OnePair pairs = 1;
+    repeated Pair pairs = 1;
 }
 
 message PutResponse {
@@ -107,7 +86,7 @@ message PutResponse {
 }
 
 message CheckRequest {
-   repeated OnePair pairs = 1;
+   repeated Pair pairs = 1;
 }
 
 message CheckResponse {

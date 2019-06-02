@@ -24,6 +24,11 @@ class ChordStub(object):
         request_serializer=chord__service__pb2.GetPredecessorRequest.SerializeToString,
         response_deserializer=chord__service__pb2.GetPredecessorResponse.FromString,
         )
+    self.get_configuration = channel.unary_unary(
+        '/chordService.Chord/get_configuration',
+        request_serializer=chord__service__pb2.GetConfigurationRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.GetConfigurationResponse.FromString,
+        )
     self.notify_at_join = channel.unary_unary(
         '/chordService.Chord/notify_at_join',
         request_serializer=chord__service__pb2.NotifyRequest.SerializeToString,
@@ -34,16 +39,6 @@ class ChordStub(object):
         request_serializer=chord__service__pb2.NotifyRequest.SerializeToString,
         response_deserializer=chord__service__pb2.NotifyResponse.FromString,
         )
-    self.check = channel.unary_unary(
-        '/chordService.Chord/check',
-        request_serializer=chord__service__pb2.CheckRequest.SerializeToString,
-        response_deserializer=chord__service__pb2.CheckResponse.FromString,
-        )
-    self.get_configuration = channel.unary_unary(
-        '/chordService.Chord/get_configuration',
-        request_serializer=chord__service__pb2.GetConfigurationRequest.SerializeToString,
-        response_deserializer=chord__service__pb2.GetConfigurationResponse.FromString,
-        )
     self.get = channel.unary_unary(
         '/chordService.Chord/get',
         request_serializer=chord__service__pb2.GetRequest.SerializeToString,
@@ -53,6 +48,11 @@ class ChordStub(object):
         '/chordService.Chord/put',
         request_serializer=chord__service__pb2.PutRequest.SerializeToString,
         response_deserializer=chord__service__pb2.PutResponse.FromString,
+        )
+    self.check = channel.unary_unary(
+        '/chordService.Chord/check',
+        request_serializer=chord__service__pb2.CheckRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.CheckResponse.FromString,
         )
 
 
@@ -74,6 +74,13 @@ class ChordServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def get_configuration(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def notify_at_join(self, request, context):
     # missing associated documentation comment in .proto file
     pass
@@ -82,20 +89,6 @@ class ChordServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def notify_at_leave(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def check(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def get_configuration(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -116,6 +109,13 @@ class ChordServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def check(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_ChordServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -129,6 +129,11 @@ def add_ChordServicer_to_server(servicer, server):
           request_deserializer=chord__service__pb2.GetPredecessorRequest.FromString,
           response_serializer=chord__service__pb2.GetPredecessorResponse.SerializeToString,
       ),
+      'get_configuration': grpc.unary_unary_rpc_method_handler(
+          servicer.get_configuration,
+          request_deserializer=chord__service__pb2.GetConfigurationRequest.FromString,
+          response_serializer=chord__service__pb2.GetConfigurationResponse.SerializeToString,
+      ),
       'notify_at_join': grpc.unary_unary_rpc_method_handler(
           servicer.notify_at_join,
           request_deserializer=chord__service__pb2.NotifyRequest.FromString,
@@ -139,16 +144,6 @@ def add_ChordServicer_to_server(servicer, server):
           request_deserializer=chord__service__pb2.NotifyRequest.FromString,
           response_serializer=chord__service__pb2.NotifyResponse.SerializeToString,
       ),
-      'check': grpc.unary_unary_rpc_method_handler(
-          servicer.check,
-          request_deserializer=chord__service__pb2.CheckRequest.FromString,
-          response_serializer=chord__service__pb2.CheckResponse.SerializeToString,
-      ),
-      'get_configuration': grpc.unary_unary_rpc_method_handler(
-          servicer.get_configuration,
-          request_deserializer=chord__service__pb2.GetConfigurationRequest.FromString,
-          response_serializer=chord__service__pb2.GetConfigurationResponse.SerializeToString,
-      ),
       'get': grpc.unary_unary_rpc_method_handler(
           servicer.get,
           request_deserializer=chord__service__pb2.GetRequest.FromString,
@@ -158,6 +153,11 @@ def add_ChordServicer_to_server(servicer, server):
           servicer.put,
           request_deserializer=chord__service__pb2.PutRequest.FromString,
           response_serializer=chord__service__pb2.PutResponse.SerializeToString,
+      ),
+      'check': grpc.unary_unary_rpc_method_handler(
+          servicer.check,
+          request_deserializer=chord__service__pb2.CheckRequest.FromString,
+          response_serializer=chord__service__pb2.CheckResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

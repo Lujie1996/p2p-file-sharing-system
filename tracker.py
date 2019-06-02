@@ -1,4 +1,3 @@
-import sys
 import grpc
 import time
 import random
