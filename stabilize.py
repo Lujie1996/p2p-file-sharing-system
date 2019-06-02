@@ -5,14 +5,7 @@ import random
 import time
 from utils import *
 
-PRINT = True
-
-def parse_config():
-    config = dict()
-    config['interval_upper_bound'] = 4
-    config['interval_lower_bound'] = 2
-    config['M'] = 5
-    return config
+PRINT = False
 
 
 class Stabilize(Thread):
@@ -44,7 +37,7 @@ class Stabilize(Thread):
                 self.node.notify_successor(type='leave')
             elif suc_pre_addr == self.node.successor[0]:
                 # successor does not have a predecessor yet, notify it
-                self.node.notify_successor('join')
+                self.node.notify_successor(type='join')
             else:
                 if suc_pre_id != self.node.id:
                     if PRINT:

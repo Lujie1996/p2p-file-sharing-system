@@ -10,6 +10,7 @@ import chord_service_pb2_grpc
 from logging import Logger, StreamHandler, Formatter
 from fix_finger import FixFinger
 from stabilize import Stabilize
+from checker import Checker
 from utils import *
 
 
@@ -29,6 +30,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.only_main_thread = False
         self.fix_finger = FixFinger(self)
         self.stabilize = Stabilize(self)
+        self.checker = Checker(self)
+        self.storage = dict() # key:[len, seq_num, [addrs]] seq_num increases by 1 everytime update
         self.run()
 
     def set_log(self):
@@ -56,6 +59,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if not self.only_main_thread:
             self.fix_finger.start()
             self.stabilize.start()
+            self.checker.start()
         print('[node] #{}: finger table: {}; successor: {}; predecessor: {}'
               .format(self.id, self.finger_table, self.successor, self.predecessor))
 
@@ -129,6 +133,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
+                    self.update_storage_at_join(notify_res)
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
             except Exception:
@@ -143,16 +148,17 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         if self.predecessor is None:
             print("2nd if")
-            self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
-            return chord_service_pb2.NotifyResponse(result=0)
+            self.predecessor = (request.predecessorId, request.addr)
+            response = self.generate_notify_response()
+            return response
 
         #predecessor_id_offset = find_offset(self.predecessor[0], self.id)
         #request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
-        # print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
+        self.predecessor = (request.predecessorId, request.addr)
+        response = self.generate_notify_response()
+        return response
 
-        self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
-        return chord_service_pb2.NotifyResponse(result=0)
 
     def notify_at_leave(self, request, context):
         print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
@@ -168,10 +174,54 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         #predecessor_id_offset = find_offset(self.predecessor[0], self.id)
         #request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
-        # print('predecessor_id_offset:{}   request_predecessor_id_offset:{}'.format(predecessor_id_offset, request_predecessor_id_offset))
-
-        self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
+        self.predecessor = (request.predecessorId, request.addr)
         return chord_service_pb2.NotifyResponse(result=0)
+
+    def generate_notify_response(self):
+        response = chord_service_pb2.NotifyResponse()
+        response.result = 0
+
+        to_be_deleted = list()
+        for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
+            if value[0] == 3:
+                successor_id, successor_addr = self.find_successor_local(key % (2 ** M))
+                if self.predecessor != successor_id:
+                    continue
+            to_pair = response.pairs.add()
+            to_pair.key = key
+            to_pair.len = value[0]
+            to_pair.seq_num = value[1]
+            for addr in value[2]:
+                to_pair.addrs.append(addr)
+
+            self.storage[key][0] -= 1
+            if self.storage[key][0] == 0:
+                to_be_deleted.append(key)
+
+        for key in to_be_deleted:
+            self.storage.pop(key)
+        return response
+
+    def generate_check_request(self):
+        request = chord_service_pb2.CheckRequest()
+        for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
+            to_pair = request.pairs.add()
+            to_pair.key = key
+            to_pair.len = value[0] - 1
+            to_pair.seq_num = value[1]
+        return request
+
+    def update_storage_at_join(self, notify_res):
+        if not notify_res.HasField("pairs"):
+            return
+
+        for pair in notify_res.pairs:
+            self.storage[pair.key] = list()
+            self.storage[pair.key].append(pair.len)
+            self.storage[pair.key].append(pair.seq_num)
+            self.storage[pair.key].append(list())
+            for addr in pair.addrs:
+                self.storage[pair.key][2].append(addr)
 
     def initialize_with_node_info(self):
         self.init_finger_table()
@@ -290,6 +340,16 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 return -2, str(-2)
                 # return -2 when this RPC went wrong
 
+    def check_local(self):
+        check_request = self.generate_check_request()
+        with grpc.insecure_channel(self.successor[1]) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            try:
+                stub.check(check_request)
+            except Exception as e:
+                print('[check] #{} check_local() failed at RPC'.format(self.id))
+                #return -1, -1
+
     def closest_preceding_node(self, id):
         search_id_offset = find_offset(self.id, id)
 
@@ -343,7 +403,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 response = stub.get_predecessor(request, timeout=20)
                 return response.id, response.addr
             except Exception as e:
-                print('[node] #{} get_successors_predecessor() failed at RPC'.format(self.id))
+                print('[node] #{} get_successors_predecessor() failed at RPC. Current successor is: {}.'.format(self.id, self.successor))
                 # print('-------------------------------------------------------------------------------')
                 # print(str(e))
                 # print('-------------------------------------------------------------------------------')

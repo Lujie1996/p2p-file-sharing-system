@@ -3,7 +3,7 @@ import hashlib
 
 M = 5
 
-PRINT = False
+PRINT = True
 
 
 def find_offset(initial, final):
@@ -32,3 +32,11 @@ def get_unique_addr_list(n):
         if hashed not in unique:
             unique[hashed] = addr
     return list(unique.values())
+
+
+def parse_config():
+    config = dict()
+    config['interval_upper_bound'] = 4
+    config['interval_lower_bound'] = 2
+    config['M'] = 5
+    return config
