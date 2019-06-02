@@ -73,6 +73,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return get_req
 
     def fetch_data_from_predecessor(self, data_to_fetch):
+        print('nodeId{} fetches data from its predecessorId{}'.format(self.id, self.predecessor[0]))
         if len(data_to_fetch) == 0:
             return 0
         try:
@@ -82,6 +83,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 res = stub.get(get_request)
                 if res.result == 0:
                     # reuse function with same logic
+                    print('***fetch_data_from_predecessor() invokes update_storage()function***')
                     self.update_storage(res, -1)
         except Exception as e:
             print("[Fetch Failed] #{} when fetching data from node {}".format(self.id, self.predecessor[0]))
@@ -104,19 +106,19 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         for one_pair in request.pairs:
             # currently addr is not set in the request
             key = one_pair.key
-            if key not in self.storage or one_pair.seq_num != self.storage[key][1]:
+            if one_pair.len == 0:
+                if key in self.storage:
+                    with self.storage_lock:
+                        self.storage.pop(key)
+            elif key not in self.storage or one_pair.seq_num != self.storage[key][1]:
                 data_to_fetch.append(key)
-            elif one_pair.len == 0:
-                # delete current tail key
-                with self.storage_lock:
-                    self.storage.pop(key)
             elif self.storage[key][0] != one_pair.len:
                 with self.storage_lock:
                     self.storage[key][0] = one_pair.len
 
         # fetch the missing data from predecessor
         # TODO: try the asynchonized fetch using background thread or another thread
-        print("fetch data is {}".format(str(data_to_fetch)))
+        print('the number of data to be fetched:{}'.format(len(data_to_fetch)))
         ret = self.fetch_data_from_predecessor(data_to_fetch)
         return chord_service_pb2.CheckResponse(result=ret)
 
@@ -243,6 +245,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
+                    print('***notify_successor() invokes update_storage()function***')
                     self.update_storage(notify_res)
                     self.add_chord_node_to_tracker(self.successor[1])
                 if type == 'leave':
@@ -340,9 +343,11 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return request
 
     def update_storage(self, notify_res, len_bias=0):
-        print("[NOTIFY RESPONSE]: {}".format(str(notify_res)))
+        #print("[NOTIFY RESPONSE]: {}".format(str(notify_res)))
         if notify_res.pairs is None:
             return
+
+        print('data to be updated in storage:{}'.format(str(notify_res.pairs)))
 
         for pair in notify_res.pairs:
             with self.storage_lock:
@@ -476,7 +481,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         with grpc.insecure_channel(self.successor[1]) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             try:
-                stub.check(check_request)
+                res = stub.check(check_request)
             except Exception as e:
                 print(str(e))
                 print('[check] #{} check_local() failed at RPC'.format(self.id))
