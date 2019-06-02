@@ -16,10 +16,11 @@ class Client:
         self.tracker_addr = utils.TRACKER_ADDR
         self.entrance_addr = ''
         self.local_files = dict()  # hashed_value_of_file -> file; note: the stored file is of type: byte
+        # uploaded files are stored in self.local_files, only these files can  be downloaded by other peers
 
     def start(self):
         while True:
-            command = str(input('Choose your operation: 1 for upload, 2 for download, 3 for put, 4 for get, '
+            command = str(input('Choose your operation: 1 for upload, 2 for download, 3 for put, 4 for get, 5 for debug'
                                 'and any other input to exit\n'))
             filename = str(input('Filename:\n'))
             if command == '1':
@@ -48,6 +49,8 @@ class Client:
                     print(str(addr_list))
                 else:
                     print('Failed')
+            elif command == '5':
+                self.show_debug_info()
             else:
                 return
 
@@ -216,6 +219,17 @@ class Client:
             return
 
         print('Download succeeded!')
+
+    def show_debug_info(self):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.GetDeubgRequest()
+            try:
+                response = stub.rpc_get_debug(request, timeout=20)
+            except Exception:
+                print("RPC failed")
+                return
+        print(response.debug_info)
 
     #  peer node calls this.
     def rpc_download(self, request, context):
