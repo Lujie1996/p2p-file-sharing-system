@@ -8,6 +8,7 @@ service P2P {
     rpc rpc_download(DownloadRequest) returns (DownloadResponse) {}
     rpc rpc_add_chord_node(AddChordNodeRequest) returns (AddChordNodeResponse) {}
     rpc rpc_remove_chord_node(RemoveChordNodeRequest) returns (RemoveChordNodeResponse) {}
+    rpc rpc_get_debug(GetDeubgRequest) returns (GetDeubgResponse) {}
 }
 
 message RegisterFileRequest {
@@ -53,4 +54,12 @@ message RemoveChordNodeRequest {
 
 message RemoveChordNodeResponse {
     int32 result = 1;
+}
+
+message GetDeubgRequest {
+
+}
+
+message GetDeubgResponse {
+    string debug_info = 1;
 }

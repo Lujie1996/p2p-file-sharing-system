@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='p2pService',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x11p2p_service.proto\x12\np2pService\"E\n\x13RegisterFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\"=\n\x14RegisterFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x15\n\rentrance_addr\x18\x02 \x01(\t\"%\n\x11LookUpFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"Y\n\x12LookUpFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\x12\x15\n\rentrance_addr\x18\x03 \x01(\t\"/\n\x0f\x44ownloadRequest\x12\x1c\n\x14hashed_value_of_file\x18\x01 \x01(\t\"0\n\x10\x44ownloadResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ile\x18\x02 \x01(\t\"#\n\x13\x41\x64\x64\x43hordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\"&\n\x14\x41\x64\x64\x43hordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"&\n\x16RemoveChordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\")\n\x17RemoveChordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\xc0\x03\n\x03P2P\x12X\n\x11rpc_register_file\x12\x1f.p2pService.RegisterFileRequest\x1a .p2pService.RegisterFileResponse\"\x00\x12S\n\x10rpc_look_up_file\x12\x1d.p2pService.LookUpFileRequest\x1a\x1e.p2pService.LookUpFileResponse\"\x00\x12K\n\x0crpc_download\x12\x1b.p2pService.DownloadRequest\x1a\x1c.p2pService.DownloadResponse\"\x00\x12Y\n\x12rpc_add_chord_node\x12\x1f.p2pService.AddChordNodeRequest\x1a .p2pService.AddChordNodeResponse\"\x00\x12\x62\n\x15rpc_remove_chord_node\x12\".p2pService.RemoveChordNodeRequest\x1a#.p2pService.RemoveChordNodeResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x11p2p_service.proto\x12\np2pService\"E\n\x13RegisterFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\"=\n\x14RegisterFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x15\n\rentrance_addr\x18\x02 \x01(\t\"%\n\x11LookUpFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"Y\n\x12LookUpFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\x12\x15\n\rentrance_addr\x18\x03 \x01(\t\"/\n\x0f\x44ownloadRequest\x12\x1c\n\x14hashed_value_of_file\x18\x01 \x01(\t\"0\n\x10\x44ownloadResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ile\x18\x02 \x01(\t\"#\n\x13\x41\x64\x64\x43hordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\"&\n\x14\x41\x64\x64\x43hordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"&\n\x16RemoveChordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\")\n\x17RemoveChordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"\x11\n\x0fGetDeubgRequest\"&\n\x10GetDeubgResponse\x12\x12\n\ndebug_info\x18\x01 \x01(\t2\x8e\x04\n\x03P2P\x12X\n\x11rpc_register_file\x12\x1f.p2pService.RegisterFileRequest\x1a .p2pService.RegisterFileResponse\"\x00\x12S\n\x10rpc_look_up_file\x12\x1d.p2pService.LookUpFileRequest\x1a\x1e.p2pService.LookUpFileResponse\"\x00\x12K\n\x0crpc_download\x12\x1b.p2pService.DownloadRequest\x1a\x1c.p2pService.DownloadResponse\"\x00\x12Y\n\x12rpc_add_chord_node\x12\x1f.p2pService.AddChordNodeRequest\x1a .p2pService.AddChordNodeResponse\"\x00\x12\x62\n\x15rpc_remove_chord_node\x12\".p2pService.RemoveChordNodeRequest\x1a#.p2pService.RemoveChordNodeResponse\"\x00\x12L\n\rrpc_get_debug\x12\x1b.p2pService.GetDeubgRequest\x1a\x1c.p2pService.GetDeubgResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -369,6 +369,61 @@ _REMOVECHORDNODERESPONSE = _descriptor.Descriptor(
   serialized_end=554,
 )
 
+
+_GETDEUBGREQUEST = _descriptor.Descriptor(
+  name='GetDeubgRequest',
+  full_name='p2pService.GetDeubgRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=556,
+  serialized_end=573,
+)
+
+
+_GETDEUBGRESPONSE = _descriptor.Descriptor(
+  name='GetDeubgResponse',
+  full_name='p2pService.GetDeubgResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='debug_info', full_name='p2pService.GetDeubgResponse.debug_info', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=575,
+  serialized_end=613,
+)
+
 DESCRIPTOR.message_types_by_name['RegisterFileRequest'] = _REGISTERFILEREQUEST
 DESCRIPTOR.message_types_by_name['RegisterFileResponse'] = _REGISTERFILERESPONSE
 DESCRIPTOR.message_types_by_name['LookUpFileRequest'] = _LOOKUPFILEREQUEST
@@ -379,6 +434,8 @@ DESCRIPTOR.message_types_by_name['AddChordNodeRequest'] = _ADDCHORDNODEREQUEST
 DESCRIPTOR.message_types_by_name['AddChordNodeResponse'] = _ADDCHORDNODERESPONSE
 DESCRIPTOR.message_types_by_name['RemoveChordNodeRequest'] = _REMOVECHORDNODEREQUEST
 DESCRIPTOR.message_types_by_name['RemoveChordNodeResponse'] = _REMOVECHORDNODERESPONSE
+DESCRIPTOR.message_types_by_name['GetDeubgRequest'] = _GETDEUBGREQUEST
+DESCRIPTOR.message_types_by_name['GetDeubgResponse'] = _GETDEUBGRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RegisterFileRequest = _reflection.GeneratedProtocolMessageType('RegisterFileRequest', (_message.Message,), dict(
@@ -451,6 +508,20 @@ RemoveChordNodeResponse = _reflection.GeneratedProtocolMessageType('RemoveChordN
   ))
 _sym_db.RegisterMessage(RemoveChordNodeResponse)
 
+GetDeubgRequest = _reflection.GeneratedProtocolMessageType('GetDeubgRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETDEUBGREQUEST,
+  __module__ = 'p2p_service_pb2'
+  # @@protoc_insertion_point(class_scope:p2pService.GetDeubgRequest)
+  ))
+_sym_db.RegisterMessage(GetDeubgRequest)
+
+GetDeubgResponse = _reflection.GeneratedProtocolMessageType('GetDeubgResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETDEUBGRESPONSE,
+  __module__ = 'p2p_service_pb2'
+  # @@protoc_insertion_point(class_scope:p2pService.GetDeubgResponse)
+  ))
+_sym_db.RegisterMessage(GetDeubgResponse)
+
 
 
 _P2P = _descriptor.ServiceDescriptor(
@@ -459,8 +530,8 @@ _P2P = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=557,
-  serialized_end=1005,
+  serialized_start=616,
+  serialized_end=1142,
   methods=[
   _descriptor.MethodDescriptor(
     name='rpc_register_file',
@@ -505,6 +576,15 @@ _P2P = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_REMOVECHORDNODEREQUEST,
     output_type=_REMOVECHORDNODERESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='rpc_get_debug',
+    full_name='p2pService.P2P.rpc_get_debug',
+    index=5,
+    containing_service=None,
+    input_type=_GETDEUBGREQUEST,
+    output_type=_GETDEUBGRESPONSE,
     serialized_options=None,
   ),
 ])
