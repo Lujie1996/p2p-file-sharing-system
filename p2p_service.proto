@@ -3,7 +3,7 @@ syntax = "proto3";
 package p2pService;
 
 service P2P {
-	rpc rpc_register_file(RegisterFileRequest) returns (RegisterFileResponse) {}
+    rpc rpc_register_file(RegisterFileRequest) returns (RegisterFileResponse) {}
     rpc rpc_look_up_file(LookUpFileRequest) returns (LookUpFileResponse) {}
     rpc rpc_download(DownloadRequest) returns (DownloadResponse) {}
     rpc rpc_add_chord_node(AddChordNodeRequest) returns (AddChordNodeResponse) {}
