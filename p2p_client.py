@@ -1,6 +1,4 @@
-
 import grpc
-import time
 import random
 import chord_service_pb2
 import chord_service_pb2_grpc
@@ -20,18 +18,26 @@ class Client:
 
     def start(self):
         while True:
-            command = str(input('Choose your operation: 1 for upload, 2 for download, 3 for put, 4 for get, 5 for debug'
-                                'and any other input to exit\n'))
-            filename = str(input('Filename:\n'))
+            print('------------------------------------')
+            command = str(input('Choose your operation:\n'
+                                '1 for upload\n'
+                                '2 for download\n'
+                                '3 for put\n'
+                                '4 for get\n'
+                                '5 for debug\n'
+                                'or any other input to exit\n'))
+            print('------------------------------------')
             if command == '1':
+                filename = str(input('Filename:\n'))
                 # upload file
                 self.upload(filename)
             elif command == '2':
+                filename = str(input('Filename:\n'))
                 # download file
                 self.download(filename)
             elif command == '3':
                 # put
-                s = str(input('Input key,value separated by \',\''))
+                s = str(input('Input key,value separated by \',\'\n'))
                 key, value = s.split(',')
                 hashed_value_of_file = utils.sha1(key)
                 result = self.put(hashed_value_of_file, value)
@@ -41,7 +47,7 @@ class Client:
                     print('Failed')
             elif command == '4':
                 # get
-                key = str(input('Input key'))
+                key = str(input('Input key:\n'))
                 hashed_value_of_file = utils.sha1(key)
                 result, addr_list = self.get(hashed_value_of_file)
                 if result == 0:
@@ -85,7 +91,7 @@ class Client:
         # step1: find_successor(hashed_value_of_file)
         result, successor_addr = self.find_successor(hashed_value_of_file)
         if result == -1:
-            return -1
+            return -1, list()
 
         # step2: get addr_list from Chord
         with grpc.insecure_channel(successor_addr) as channel:
@@ -96,7 +102,7 @@ class Client:
                 response = stub.get(req, timeout=20)
             except Exception:
                 print("RPC failed")
-                return -1
+                return -1, list()
         if response.result == -1:
             return -1, list()
 
@@ -248,6 +254,9 @@ class Client:
         return response
 
 
-if '__name__' == '__main__':
-    addr = str(input('Indicate the address to start the client (ip:port)\n'))
+if __name__ == '__main__':
+    addr = str(input(
+        'Indicate the address to start the client (ip:port) or just indicate the port number to start on local\n'))
+    if ':' not in addr:
+        addr = 'localhost:' + addr
     Client(addr).start()
