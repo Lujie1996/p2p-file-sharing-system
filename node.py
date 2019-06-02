@@ -15,7 +15,7 @@ from utils import *
 
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
-
+_R = 3
 
 class Node(chord_service_pb2_grpc.ChordServicer):
     def __init__(self, local_addr, contact_to, initial_id_addr_map=None):
@@ -62,6 +62,93 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             self.checker.start()
         print('[node] #{}: finger table: {}; successor: {}; predecessor: {}'
               .format(self.id, self.finger_table, self.successor, self.predecessor))
+
+    def get_get_request(self, keys_to_fetch):
+        get_req = chord_service_pb2.GetRequest()
+        for key in keys_to_fetch:
+            get_req.keys.append(key)
+        return get_req
+
+    def fetch_data_from_predecessor(self, data_to_fetch):
+        try:
+            with grpc.insecure_channel(self.predecessor[1]) as channel:
+                stub = chord_service_pb2_grpc.ChordStub(channel)
+                get_request = self.get_get_request(data_to_fetch)
+                res = stub.get(get_request)
+                if res.result == 0:
+                    self.update_storage_at_join(res)
+        except Exception as e:
+            print("[Fetch Failed] #{} when fetching data from node {}".format(self.id, self.predecessor[0]))
+            return -1
+
+        return 0
+
+    # RPC
+    def check(self, request, context):
+        # RPC called by predecessor to check and update all replicate data and delete extra replicas
+        # TODO: (important) make sure the check process is done after notify when joining in,
+        # so that the predecessor points to right node
+        if not request.HasField('pairs'):
+            return chord_service_pb2.CheckResponse(result=0)
+
+        if not self.predecessor:
+            return chord_service_pb2.CheckResponse(result=-1)
+
+        data_to_fetch = []
+        for one_pair in request.pairs:
+            # currently addr is not set in the request
+            key = one_pair.key
+            local_len = self.storage[key][0]
+            if key not in self.storage or one_pair.seq_num != self.storage[key][1]:
+                data_to_fetch.append(key)
+            elif local_len == 0:
+                # delete current tail key
+                self.storage.pop(key)
+            elif local_len < _R:
+                # local len is 1, 2, ..., _R - 1 then set the new len
+                self.storage[key][0] = one_pair.len
+
+        # fetch the missing data from predecessor
+        # TODO: try the asynchonized fetch using background thread or another thread
+        ret = self.fetch_data_from_predecessor(data_to_fetch)
+        return chord_service_pb2.CheckResponse(result=ret)
+
+    # RPC
+    def get(self, request, context):
+        # RPC for getting values of multiple keys
+        # storage : {key: [len, seq, [ip_addr]]}
+        get_res = chord_service_pb2.GetResponse()
+        get_res.result = 1
+        for key in request.keys:
+            pair = get_res.pairs.add()
+            if key not in self.storage:
+                continue
+            vals = self.storage[key]
+            pair.key = key
+            for addr in vals[2]:
+                pair.addrs.append(addr)
+        return get_res
+
+    # RPC
+    def put(self, request, context):
+        # RPC for putting (key,values) to current nodes
+        # here we only store in the first node and then check() thread will periodically replicate data to the replicaiton chain
+        if not request.HasField("pairs"):
+            return chord_service_pb2.PutResponse(result=0)
+
+        for pair in request.pairs:
+            # TODO: ADD LOCK TO EACH KEY and exception process
+            if pair.key not in self.storage:
+                # initial the values for the key. [len, seq, [ip_addr]]
+                self.storage[pair.key] = [_R, 1, [pair.addr]]
+            else:
+                # add current ip to the addr
+                addr_list = self.storage[pair.key][2]
+                if pair.addr not in addr_list:
+                    self.storage[pair.key][1] = self.storage[pair.key][1] + 1
+                    addr_list.append(pair.addr)
+
+        return chord_service_pb2.PutResponse(result=0)
 
     def init_finger_table(self):
         for i in range(0, M):

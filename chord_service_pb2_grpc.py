@@ -44,6 +44,16 @@ class ChordStub(object):
         request_serializer=chord__service__pb2.GetConfigurationRequest.SerializeToString,
         response_deserializer=chord__service__pb2.GetConfigurationResponse.FromString,
         )
+    self.get = channel.unary_unary(
+        '/chordService.Chord/get',
+        request_serializer=chord__service__pb2.GetRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.GetResponse.FromString,
+        )
+    self.put = channel.unary_unary(
+        '/chordService.Chord/put',
+        request_serializer=chord__service__pb2.PutRequest.SerializeToString,
+        response_deserializer=chord__service__pb2.PutResponse.FromString,
+        )
 
 
 class ChordServicer(object):
@@ -92,6 +102,20 @@ class ChordServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def get(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def put(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_ChordServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -124,6 +148,16 @@ def add_ChordServicer_to_server(servicer, server):
           servicer.get_configuration,
           request_deserializer=chord__service__pb2.GetConfigurationRequest.FromString,
           response_serializer=chord__service__pb2.GetConfigurationResponse.SerializeToString,
+      ),
+      'get': grpc.unary_unary_rpc_method_handler(
+          servicer.get,
+          request_deserializer=chord__service__pb2.GetRequest.FromString,
+          response_serializer=chord__service__pb2.GetResponse.SerializeToString,
+      ),
+      'put': grpc.unary_unary_rpc_method_handler(
+          servicer.put,
+          request_deserializer=chord__service__pb2.PutRequest.FromString,
+          response_serializer=chord__service__pb2.PutResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
