@@ -32,6 +32,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.stabilize = Stabilize(self)
         self.checker = Checker(self)
         self.storage = dict() # key:[len, seq_num, [addrs]] seq_num increases by 1 everytime update
+        self.storage_lock = threading.Lock()
         self.run()
 
     def set_log(self):
@@ -270,7 +271,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         response = chord_service_pb2.NotifyResponse()
         response.result = 0
 
-        to_be_deleted = list()
+        # TODO: traversing dictionary needs to be locked?
         for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
             if value[0] == 3:
                 successor_id, successor_addr = self.find_successor_local(key % (2 ** M))
@@ -283,21 +284,16 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             for addr in value[2]:
                 to_pair.addrs.append(addr)
 
-            self.storage[key][0] -= 1
-            if self.storage[key][0] == 0:
-                to_be_deleted.append(key)
-
-        for key in to_be_deleted:
-            self.storage.pop(key)
         return response
 
     def generate_check_request(self):
         request = chord_service_pb2.CheckRequest()
-        for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
-            to_pair = request.pairs.add()
-            to_pair.key = key
-            to_pair.len = value[0] - 1
-            to_pair.seq_num = value[1]
+        with self.storage_lock:
+            for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
+                to_pair = request.pairs.add()
+                to_pair.key = key
+                to_pair.len = value[0] - 1
+                to_pair.seq_num = value[1]
         return request
 
     def update_storage_at_join(self, notify_res):
@@ -305,12 +301,13 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             return
 
         for pair in notify_res.pairs:
-            self.storage[pair.key] = list()
-            self.storage[pair.key].append(pair.len)
-            self.storage[pair.key].append(pair.seq_num)
-            self.storage[pair.key].append(list())
-            for addr in pair.addrs:
-                self.storage[pair.key][2].append(addr)
+            with self.storage_lock:
+                self.storage[pair.key] = list()
+                self.storage[pair.key].append(pair.len)
+                self.storage[pair.key].append(pair.seq_num)
+                self.storage[pair.key].append(list())
+                for addr in pair.addrs:
+                    self.storage[pair.key][2].append(addr)
 
     def initialize_with_node_info(self):
         self.init_finger_table()
