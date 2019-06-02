@@ -16,10 +16,12 @@ class Client:
         self.tracker_addr = utils.TRACKER_ADDR
         self.entrance_addr = ''
         self.local_files = dict()  # hashed_value_of_file -> file; note: the stored file is of type: byte
+        # uploaded files are stored in self.local_files, only these files can  be downloaded by other peers
 
     def start(self):
         while True:
-            command = str(input('Choose your operation: 1 for upload, 2 for download, any other input to exit\n'))
+            command = str(input('Choose your operation: 1 for upload, 2 for download, 3 for put, 4 for get, 5 for debug'
+                                'and any other input to exit\n'))
             filename = str(input('Filename:\n'))
             if command == '1':
                 # upload file
@@ -27,6 +29,28 @@ class Client:
             elif command == '2':
                 # download file
                 self.download(filename)
+            elif command == '3':
+                # put
+                s = str(input('Input key,value separated by \',\''))
+                key, value = s.split(',')
+                hashed_value_of_file = utils.sha1(key)
+                result = self.put(hashed_value_of_file, value)
+                if result == 0:
+                    print('Succeeded')
+                else:
+                    print('Failed')
+            elif command == '4':
+                # get
+                key = str(input('Input key'))
+                hashed_value_of_file = utils.sha1(key)
+                result, addr_list = self.get(hashed_value_of_file)
+                if result == 0:
+                    print('Succeeded')
+                    print(str(addr_list))
+                else:
+                    print('Failed')
+            elif command == '5':
+                self.show_debug_info()
             else:
                 return
 
@@ -81,8 +105,9 @@ class Client:
             addr_list.append(addr)
         return 0, addr_list
 
-    def find_successor(self, key):
+    def find_successor(self, hashed_value_of_file):
         # return: {int result: -1 for failed, 0 for succeeded; string successor_addr}
+        key = int(hashed_value_of_file, 16) % (2 ** utils.M)
         with grpc.insecure_channel(self.entrance_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=1)
@@ -194,6 +219,17 @@ class Client:
             return
 
         print('Download succeeded!')
+
+    def show_debug_info(self):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.GetDeubgRequest()
+            try:
+                response = stub.rpc_get_debug(request, timeout=20)
+            except Exception:
+                print("RPC failed")
+                return
+        print(response.debug_info)
 
     #  peer node calls this.
     def rpc_download(self, request, context):

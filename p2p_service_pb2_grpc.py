@@ -39,6 +39,11 @@ class P2PStub(object):
         request_serializer=p2p__service__pb2.RemoveChordNodeRequest.SerializeToString,
         response_deserializer=p2p__service__pb2.RemoveChordNodeResponse.FromString,
         )
+    self.rpc_get_debug = channel.unary_unary(
+        '/p2pService.P2P/rpc_get_debug',
+        request_serializer=p2p__service__pb2.GetDeubgRequest.SerializeToString,
+        response_deserializer=p2p__service__pb2.GetDeubgResponse.FromString,
+        )
 
 
 class P2PServicer(object):
@@ -80,6 +85,13 @@ class P2PServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def rpc_get_debug(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_P2PServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -107,6 +119,11 @@ def add_P2PServicer_to_server(servicer, server):
           servicer.rpc_remove_chord_node,
           request_deserializer=p2p__service__pb2.RemoveChordNodeRequest.FromString,
           response_serializer=p2p__service__pb2.RemoveChordNodeResponse.SerializeToString,
+      ),
+      'rpc_get_debug': grpc.unary_unary_rpc_method_handler(
+          servicer.rpc_get_debug,
+          request_deserializer=p2p__service__pb2.GetDeubgRequest.FromString,
+          response_serializer=p2p__service__pb2.GetDeubgResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
