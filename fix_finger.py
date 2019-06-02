@@ -5,12 +5,7 @@ from utils import *
 import time
 import random
 
-
-def parse_config():
-    config = dict()
-    config['interval_upper_bound'] = 4
-    config['interval_lower_bound'] = 2
-    return config
+PRINT = False
 
 
 class FixFinger(Thread):

@@ -35,4 +35,14 @@ def get_unique_addr_list(n):
             unique[hashed] = addr
     return list(unique.values())
 
+<<<<<<< HEAD
 get_hash_value("localhost:9999")
+=======
+
+def parse_config():
+    config = dict()
+    config['interval_upper_bound'] = 4
+    config['interval_lower_bound'] = 2
+    config['M'] = 5
+    return config
+>>>>>>> 6ab34cd8288cb24e73bc5097700b663af23d011c

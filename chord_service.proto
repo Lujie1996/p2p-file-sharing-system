@@ -5,10 +5,15 @@ package chordService;
 service Chord {
 	rpc find_successor(FindSuccessorRequest) returns (FindSuccessorResponse) {}
 	rpc get_predecessor(GetPredecessorRequest) returns (GetPredecessorResponse) {}
-	rpc notify(NotifyRequest) returns (NotifyResponse) {}
 	rpc get_configuration (GetConfigurationRequest) returns (GetConfigurationResponse) {}
+
+	rpc notify_at_join(NotifyRequest) returns (NotifyResponse) {}
+	rpc notify_at_leave(NotifyRequest) returns (NotifyResponse) {}
+
 	rpc get (GetRequest) returns (GetResponse) {}
 	rpc put (PutRequest) returns (PutResponse) {}
+    rpc check(CheckRequest) returns (CheckResponse) {}
+
 }
 
 message FindSuccessorRequest {
@@ -36,7 +41,23 @@ message NotifyRequest {
     string addr = 2;
 }
 
+message OnePair {
+    string key = 1;
+    int32 len = 2;
+    int32 seq_num = 3;
+    repeated string addrs = 4;
+}
+
 message NotifyResponse {
+    int32 result = 1;
+    repeated OnePair pairs = 2;
+}
+
+message CheckRequest {
+    repeated OnePair pairs = 1;
+}
+
+message CheckResponse {
     int32 result = 1;
 }
 

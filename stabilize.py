@@ -5,13 +5,7 @@ import random
 import time
 from utils import *
 
-
-def parse_config():
-    config = dict()
-    config['interval_upper_bound'] = 4
-    config['interval_lower_bound'] = 2
-    config['M'] = 5
-    return config
+PRINT = False
 
 
 class Stabilize(Thread):
@@ -31,8 +25,7 @@ class Stabilize(Thread):
             try:
                 suc_pre_id, suc_pre_addr = self.node.get_successors_predecessor()
                 if PRINT:
-                    print('[stabilize] {}: get_successors_predecessor() returned {} at {}'.format(self.node.id, suc_pre_id,
-                                                                                              suc_pre_addr))
+                    print('[stabilize] {}: get_successors_predecessor() returned {} at {}'.format(self.node.id, suc_pre_id, suc_pre_addr))
             except:
                 suc_pre_id = -1
 
@@ -41,10 +34,10 @@ class Stabilize(Thread):
                     print('ERROR [stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
                 self.node.delete_successor()
-                self.node.notify_successor()
+                self.node.notify_successor(type='leave')
             elif suc_pre_addr == self.node.successor[0]:
                 # successor does not have a predecessor yet, notify it
-                self.node.notify_successor()
+                self.node.notify_successor(type='join')
             else:
                 if suc_pre_id != self.node.id:
                     if PRINT:
