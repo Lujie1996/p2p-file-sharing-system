@@ -29,8 +29,6 @@ class P2PStub(object):
         request_serializer=p2p__service__pb2.DownloadRequest.SerializeToString,
         response_deserializer=p2p__service__pb2.DownloadResponse.FromString,
         )
-<<<<<<< HEAD
-=======
     self.rpc_add_chord_node = channel.unary_unary(
         '/p2pService.P2P/rpc_add_chord_node',
         request_serializer=p2p__service__pb2.AddChordNodeRequest.SerializeToString,
@@ -41,7 +39,6 @@ class P2PStub(object):
         request_serializer=p2p__service__pb2.RemoveChordNodeRequest.SerializeToString,
         response_deserializer=p2p__service__pb2.RemoveChordNodeResponse.FromString,
         )
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 
 
 class P2PServicer(object):
@@ -69,8 +66,6 @@ class P2PServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-<<<<<<< HEAD
-=======
   def rpc_add_chord_node(self, request, context):
     # missing associated documentation comment in .proto file
     pass
@@ -85,7 +80,6 @@ class P2PServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 
 def add_P2PServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -104,8 +98,6 @@ def add_P2PServicer_to_server(servicer, server):
           request_deserializer=p2p__service__pb2.DownloadRequest.FromString,
           response_serializer=p2p__service__pb2.DownloadResponse.SerializeToString,
       ),
-<<<<<<< HEAD
-=======
       'rpc_add_chord_node': grpc.unary_unary_rpc_method_handler(
           servicer.rpc_add_chord_node,
           request_deserializer=p2p__service__pb2.AddChordNodeRequest.FromString,
@@ -116,7 +108,6 @@ def add_P2PServicer_to_server(servicer, server):
           request_deserializer=p2p__service__pb2.RemoveChordNodeRequest.FromString,
           response_serializer=p2p__service__pb2.RemoveChordNodeResponse.SerializeToString,
       ),
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
   }
   generic_handler = grpc.method_handlers_generic_handler(
       'p2pService.P2P', rpc_method_handlers)

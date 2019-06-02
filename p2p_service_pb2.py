@@ -19,11 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='p2pService',
   syntax='proto3',
   serialized_options=None,
-<<<<<<< HEAD
-  serialized_pb=_b('\n\x11p2p_service.proto\x12\np2pService\"E\n\x13RegisterFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\"=\n\x14RegisterFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x15\n\rentrance_addr\x18\x02 \x01(\t\"%\n\x11LookUpFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"Y\n\x12LookUpFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\x12\x15\n\rentrance_addr\x18\x03 \x01(\t\"/\n\x0f\x44ownloadRequest\x12\x1c\n\x14hashed_value_of_file\x18\x01 \x01(\t\"0\n\x10\x44ownloadResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ile\x18\x02 \x01(\t2\x81\x02\n\x03P2P\x12X\n\x11rpc_register_file\x12\x1f.p2pService.RegisterFileRequest\x1a .p2pService.RegisterFileResponse\"\x00\x12S\n\x10rpc_look_up_file\x12\x1d.p2pService.LookUpFileRequest\x1a\x1e.p2pService.LookUpFileResponse\"\x00\x12K\n\x0crpc_download\x12\x1b.p2pService.DownloadRequest\x1a\x1c.p2pService.DownloadResponse\"\x00\x62\x06proto3')
-=======
   serialized_pb=_b('\n\x11p2p_service.proto\x12\np2pService\"E\n\x13RegisterFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\"=\n\x14RegisterFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x15\n\rentrance_addr\x18\x02 \x01(\t\"%\n\x11LookUpFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"Y\n\x12LookUpFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\x12\x15\n\rentrance_addr\x18\x03 \x01(\t\"/\n\x0f\x44ownloadRequest\x12\x1c\n\x14hashed_value_of_file\x18\x01 \x01(\t\"0\n\x10\x44ownloadResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ile\x18\x02 \x01(\t\"#\n\x13\x41\x64\x64\x43hordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\"&\n\x14\x41\x64\x64\x43hordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"&\n\x16RemoveChordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\")\n\x17RemoveChordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\xc0\x03\n\x03P2P\x12X\n\x11rpc_register_file\x12\x1f.p2pService.RegisterFileRequest\x1a .p2pService.RegisterFileResponse\"\x00\x12S\n\x10rpc_look_up_file\x12\x1d.p2pService.LookUpFileRequest\x1a\x1e.p2pService.LookUpFileResponse\"\x00\x12K\n\x0crpc_download\x12\x1b.p2pService.DownloadRequest\x1a\x1c.p2pService.DownloadResponse\"\x00\x12Y\n\x12rpc_add_chord_node\x12\x1f.p2pService.AddChordNodeRequest\x1a .p2pService.AddChordNodeResponse\"\x00\x12\x62\n\x15rpc_remove_chord_node\x12\".p2pService.RemoveChordNodeRequest\x1a#.p2pService.RemoveChordNodeResponse\"\x00\x62\x06proto3')
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 )
 
 
@@ -249,8 +245,6 @@ _DOWNLOADRESPONSE = _descriptor.Descriptor(
   serialized_end=394,
 )
 
-<<<<<<< HEAD
-=======
 
 _ADDCHORDNODEREQUEST = _descriptor.Descriptor(
   name='AddChordNodeRequest',
@@ -375,20 +369,16 @@ _REMOVECHORDNODERESPONSE = _descriptor.Descriptor(
   serialized_end=554,
 )
 
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 DESCRIPTOR.message_types_by_name['RegisterFileRequest'] = _REGISTERFILEREQUEST
 DESCRIPTOR.message_types_by_name['RegisterFileResponse'] = _REGISTERFILERESPONSE
 DESCRIPTOR.message_types_by_name['LookUpFileRequest'] = _LOOKUPFILEREQUEST
 DESCRIPTOR.message_types_by_name['LookUpFileResponse'] = _LOOKUPFILERESPONSE
 DESCRIPTOR.message_types_by_name['DownloadRequest'] = _DOWNLOADREQUEST
 DESCRIPTOR.message_types_by_name['DownloadResponse'] = _DOWNLOADRESPONSE
-<<<<<<< HEAD
-=======
 DESCRIPTOR.message_types_by_name['AddChordNodeRequest'] = _ADDCHORDNODEREQUEST
 DESCRIPTOR.message_types_by_name['AddChordNodeResponse'] = _ADDCHORDNODERESPONSE
 DESCRIPTOR.message_types_by_name['RemoveChordNodeRequest'] = _REMOVECHORDNODEREQUEST
 DESCRIPTOR.message_types_by_name['RemoveChordNodeResponse'] = _REMOVECHORDNODERESPONSE
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RegisterFileRequest = _reflection.GeneratedProtocolMessageType('RegisterFileRequest', (_message.Message,), dict(
@@ -433,8 +423,6 @@ DownloadResponse = _reflection.GeneratedProtocolMessageType('DownloadResponse', 
   ))
 _sym_db.RegisterMessage(DownloadResponse)
 
-<<<<<<< HEAD
-=======
 AddChordNodeRequest = _reflection.GeneratedProtocolMessageType('AddChordNodeRequest', (_message.Message,), dict(
   DESCRIPTOR = _ADDCHORDNODEREQUEST,
   __module__ = 'p2p_service_pb2'
@@ -463,7 +451,6 @@ RemoveChordNodeResponse = _reflection.GeneratedProtocolMessageType('RemoveChordN
   ))
 _sym_db.RegisterMessage(RemoveChordNodeResponse)
 
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 
 
 _P2P = _descriptor.ServiceDescriptor(
@@ -472,13 +459,8 @@ _P2P = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-<<<<<<< HEAD
-  serialized_start=397,
-  serialized_end=654,
-=======
   serialized_start=557,
   serialized_end=1005,
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
   methods=[
   _descriptor.MethodDescriptor(
     name='rpc_register_file',
@@ -507,8 +489,6 @@ _P2P = _descriptor.ServiceDescriptor(
     output_type=_DOWNLOADRESPONSE,
     serialized_options=None,
   ),
-<<<<<<< HEAD
-=======
   _descriptor.MethodDescriptor(
     name='rpc_add_chord_node',
     full_name='p2pService.P2P.rpc_add_chord_node',
@@ -527,7 +507,6 @@ _P2P = _descriptor.ServiceDescriptor(
     output_type=_REMOVECHORDNODERESPONSE,
     serialized_options=None,
   ),
->>>>>>> 82b1e0f409e8362f1a32449f84b18642e931b4c3
 ])
 _sym_db.RegisterServiceDescriptor(_P2P)
 
