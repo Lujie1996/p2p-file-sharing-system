@@ -31,10 +31,64 @@ class Client:
                 return
 
     def put(self, hashed_value_of_file, fileholder_addr):
-        pass
+        # return 0 for succeeded, -1 for failed
+
+        # step1: find_successor(hashed_value_of_file)
+        result, successor_addr = self.find_successor(hashed_value_of_file)
+        if result == -1:
+            return -1
+
+        # step2: put the (hashed_value_of_file, fileholder_addr) to addr_to_put
+        with grpc.insecure_channel(successor_addr) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            request = chord_service_pb2.PutRequest()
+            # TODO: create a request
+            try:
+                response = stub.put(request, timeout=20)
+            except Exception:
+                print("RPC failed")
+                return -1
+        if response.result == -1:
+            return -1
+
+        return 0
 
     def get(self, hashed_value_of_file):
-        pass
+        # return {int result: 0 for succeeded, -1 for failed; list<string> addr_list}
+
+        # step1: find_successor(hashed_value_of_file)
+        result, successor_addr = self.find_successor(hashed_value_of_file)
+        if result == -1:
+            return -1
+
+        # step2: get addr_list from Chord
+        with grpc.insecure_channel(successor_addr) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            request = chord_service_pb2.GetRequest()
+            # TODO: create a request
+            try:
+                response = stub.get(request, timeout=20)
+            except Exception:
+                print("RPC failed")
+                return -1
+        if response.result == -1:
+            return -1, list()
+
+        # TODO: extract the response to addr_list
+        addr_list = list()
+        return 0, addr_list
+
+    def find_successor(self, key):
+        # return: {int result: -1 for failed, 0 for succeeded; string successor_addr}
+        with grpc.insecure_channel(self.entrance_addr) as channel:
+            stub = chord_service_pb2_grpc.ChordStub(channel)
+            request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=1)
+            try:
+                response = stub.find_successor(request, timeout=20)
+            except Exception:
+                print("RPC failed")
+                return -1, ''
+        return 0, response.addr
 
     def upload(self, filename):
         try:
@@ -58,7 +112,7 @@ class Client:
             except Exception:
                 print("RPC failed")
                 return
-        if response.result == 0:
+        if response.result == -1:
             print('Failed while registering to tracker')
             return
 
@@ -68,9 +122,9 @@ class Client:
 
         # step3: Fileholder put(hashed_value_of_file, fileholder_addr) to Chord
         result = self.put(hashed_value_of_file=hashed_value_of_file, fileholder_addr=self.addr)
-        # response: {int32 result: 0 for failed, 1 for succeeded;}
+        # response: {int32 result: -1 for failed, 0 for succeeded;}
 
-        if result == 0:
+        if result == -1:
             print('Failed while putting local address to Chord')
             return
 
@@ -90,20 +144,20 @@ class Client:
             except Exception:
                 print("RPC failed")
                 return
-        if response.result == 0:
+        if response.result == -1:
             print('Failed while looking up file on tracker')
             return
-        elif response.result == -1:
+        elif response.result == -2:
             print('File not found')
             return
         hashed_value_of_file = response.hashed_value_of_file
-        entrance_addr = response.entrance_addr
+        self.entrance_addr = response.entrance_addr
 
         # step2: Client contacts the entrance, get a list of fileholder_addr
         result, addr_list = self.get(hashed_value_of_file=hashed_value_of_file)
-        # response: {int32 result: 0 for failed, 1 for succeeded; repeated Address addr_list}
+        # response: {int32 result: -1 for failed, 0 for succeeded; repeated Address addr_list}
 
-        if result == 0:
+        if result == -1:
             print('Failed while getting fileholder\'s addresses from Chord')
             return
         addr_list = list()
@@ -118,12 +172,12 @@ class Client:
             request = p2p_service_pb2.DownloadRequest(hashed_value_of_file=hashed_value_of_file)
             try:
                 response = stub.rpc_download(request, timeout=20)
-                # response: {int32 result: 0 for failed, -1 for file not found, 1 for succeeded; string file}
+                # response: {int32 result: -1 for file not found, 0 for succeeded; string file}
             except Exception:
                 print("RPC failed")
                 return
-        if response.result == 0:
-            print('Failed while downloading the file')
+        if response.result == -1:
+            print('File not found')
             return
         file = response.file
         file = file.encode()  # string to bytes
@@ -151,7 +205,7 @@ class Client:
             return response
         file = self.local_files[hashed_value_of_file]
         file = file.decode()  # convert bytes to string
-        response = p2p_service_pb2.DownloadResponse(result=1, file=file)
+        response = p2p_service_pb2.DownloadResponse(result=0, file=file)
         return response
 
 
