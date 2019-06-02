@@ -3,7 +3,7 @@ import hashlib
 
 M = 5
 
-PRINT = True
+PRINT = False
 
 
 def find_offset(initial, final):

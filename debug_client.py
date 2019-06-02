@@ -20,6 +20,7 @@ def get_node_configuration(addr):
             try:
                 request = chord_service_pb2.GetConfigurationRequest()
                 response = stub.get_configuration(request, timeout=20)
+                print('--------------------------------------------------------')
                 print('nodeId:{}  |   predecessorId:{}  |  successorId:{}'.format(get_hash_value(addr), response.predecessorId, response.successorId))
                 for entry in response.table:
                     print('{} -> [{}, {}]'.format(entry.id, entry.successor_id, entry.addr))
@@ -27,15 +28,19 @@ def get_node_configuration(addr):
                 print(e)
 
 
-def start(args):
-    debug_type = args[1]
-    if debug_type == "one_node_configuration":
-        addr = args[2]
-        get_node_configuration(addr)
-    elif debug_type == "all":
+def start():
+    command = str(input('Input \'all\' to see all nodes, or node index to see that node\n'))
+    if command == "all":
         number_of_nodes = int(input('Number of nodes in Chord:\n'))
         get_configuration_of_all_nodes(number_of_nodes)
-      
-   
+    else:
+        try:
+            node_id = int(command)
+            addr_list = get_unique_addr_list(20)
+            get_node_configuration(addr_list[node_id])
+        except:
+            print('Invalid command')
+
+
 if __name__ == "__main__":
-   start(sys.argv)
+   start()
