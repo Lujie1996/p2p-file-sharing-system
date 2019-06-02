@@ -19,7 +19,8 @@ class Client:
 
     def start(self):
         while True:
-            command = str(input('Choose your operation: 1 for upload, 2 for download, any other input to exit\n'))
+            command = str(input('Choose your operation: 1 for upload, 2 for download, 3 for put, 4 for get, '
+                                'and any other input to exit\n'))
             filename = str(input('Filename:\n'))
             if command == '1':
                 # upload file
@@ -27,6 +28,26 @@ class Client:
             elif command == '2':
                 # download file
                 self.download(filename)
+            elif command == '3':
+                # put
+                s = str(input('Input key,value separated by \',\''))
+                key, value = s.split(',')
+                hashed_value_of_file = utils.sha1(key)
+                result = self.put(hashed_value_of_file, value)
+                if result == 0:
+                    print('Succeeded')
+                else:
+                    print('Failed')
+            elif command == '4':
+                # get
+                key = str(input('Input key'))
+                hashed_value_of_file = utils.sha1(key)
+                result, addr_list = self.get(hashed_value_of_file)
+                if result == 0:
+                    print('Succeeded')
+                    print(str(addr_list))
+                else:
+                    print('Failed')
             else:
                 return
 
@@ -78,8 +99,9 @@ class Client:
         addr_list = list()
         return 0, addr_list
 
-    def find_successor(self, key):
+    def find_successor(self, hashed_value_of_file):
         # return: {int result: -1 for failed, 0 for succeeded; string successor_addr}
+        key = int(hashed_value_of_file, 16) % (2 ** utils.M)
         with grpc.insecure_channel(self.entrance_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=1)
