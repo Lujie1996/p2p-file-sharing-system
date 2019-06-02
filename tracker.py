@@ -18,23 +18,42 @@ class Tracker(p2p_service_pb2_grpc.P2PServicer):
         self.ip = addr.split(':')[0]
         self.port = int(addr.split(':')[1])
         self.storage = dict()  # filename -> hashed_value_of_file
+        self.chord_nodes = set()
 
     def rpc_register_file(self, request, context):
         # request.filename, request.hashed_value_of_file
         # return RegisterFileResponse {
-        #   int32 result: 0 for fail, 1 for succeeded
+        #   int32 result: -1 for fail, 0 for succeeded
         #   string entrance_addr: address of a node in Chord
         # }
-        pass
+        self.storage[request.filename] = request.hashed_value_of_file
+        response = p2p_service_pb2.RegisterFileResponse(result=0)
+        return response
 
     def rpc_look_up_file(self, request, context):
         # request.filename
         # return LookUpFileResponse {
-        #   int32 result: 0 for failed, -1 for not found, 1 for succeeded
+        #   int32 result: -1 for failed, -2 for not found, 0 for succeeded
         #   string hashed_value_of_file
         #   string entrance_addr: address of a node in Chord
         # }
-        pass
+        if request.filename not in self.storage:
+            return p2p_service_pb2.LookUpFileResponse(result=-2)
+        hashed_value_of_file = self.storage[request.filename]
+
+        entrance_addr = random.choice(list(self.chord_nodes))
+        return p2p_service_pb2.LookUpFileResponse(result=0, hashed_value_of_file=hashed_value_of_file, entrance_addr=entrance_addr)
+
+    def rpc_add_chord_node(self, request, context):
+        self.chord_nodes.add(request.addr)
+        return p2p_service_pb2.AddChordNodeResponse(result=0)
+
+    def rpc_remove_chord_node(self, request, context):
+        node_addr = request.addr
+        if node_addr not in self.chord_nodes:
+            return p2p_service_pb2.RemoveChordNodeResponse(result=-1)
+        self.chord_nodes.remove(node_addr)
+        return p2p_service_pb2.RemoveChordNodeResponse(result=0)
 
 
 def start_server(addr):
