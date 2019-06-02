@@ -1,6 +1,4 @@
-
 import grpc
-import time
 import random
 import chord_service_pb2
 import chord_service_pb2_grpc
@@ -16,17 +14,49 @@ class Client:
         self.tracker_addr = utils.TRACKER_ADDR
         self.entrance_addr = ''
         self.local_files = dict()  # hashed_value_of_file -> file; note: the stored file is of type: byte
+        # uploaded files are stored in self.local_files, only these files can  be downloaded by other peers
 
     def start(self):
         while True:
-            command = str(input('Choose your operation: 1 for upload, 2 for download, any other input to exit\n'))
-            filename = str(input('Filename:\n'))
+            print('------------------------------------')
+            command = str(input('Choose your operation:\n'
+                                '1 for upload\n'
+                                '2 for download\n'
+                                '3 for put\n'
+                                '4 for get\n'
+                                '5 for debug\n'
+                                'or any other input to exit\n'))
+            print('------------------------------------')
             if command == '1':
+                filename = str(input('Filename:\n'))
                 # upload file
                 self.upload(filename)
             elif command == '2':
+                filename = str(input('Filename:\n'))
                 # download file
                 self.download(filename)
+            elif command == '3':
+                # put
+                s = str(input('Input key,value separated by \',\'\n'))
+                key, value = s.split(',')
+                hashed_value_of_file = utils.sha1(key)
+                result = self.put(hashed_value_of_file, value)
+                if result == 0:
+                    print('Succeeded')
+                else:
+                    print('Failed')
+            elif command == '4':
+                # get
+                key = str(input('Input key:\n'))
+                hashed_value_of_file = utils.sha1(key)
+                result, addr_list = self.get(hashed_value_of_file)
+                if result == 0:
+                    print('Succeeded')
+                    print(str(addr_list))
+                else:
+                    print('Failed')
+            elif command == '5':
+                self.show_debug_info()
             else:
                 return
 
@@ -61,7 +91,7 @@ class Client:
         # step1: find_successor(hashed_value_of_file)
         result, successor_addr = self.find_successor(hashed_value_of_file)
         if result == -1:
-            return -1
+            return -1, list()
 
         # step2: get addr_list from Chord
         with grpc.insecure_channel(successor_addr) as channel:
@@ -72,7 +102,7 @@ class Client:
                 response = stub.get(req, timeout=20)
             except Exception:
                 print("RPC failed")
-                return -1
+                return -1, list()
         if response.result == -1:
             return -1, list()
 
@@ -81,8 +111,9 @@ class Client:
             addr_list.append(addr)
         return 0, addr_list
 
-    def find_successor(self, key):
+    def find_successor(self, hashed_value_of_file):
         # return: {int result: -1 for failed, 0 for succeeded; string successor_addr}
+        key = int(hashed_value_of_file, 16) % (2 ** utils.M)
         with grpc.insecure_channel(self.entrance_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=1)
@@ -195,6 +226,17 @@ class Client:
 
         print('Download succeeded!')
 
+    def show_debug_info(self):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.GetDeubgRequest()
+            try:
+                response = stub.rpc_get_debug(request, timeout=20)
+            except Exception:
+                print("RPC failed")
+                return
+        print(response.debug_info)
+
     #  peer node calls this.
     def rpc_download(self, request, context):
         # request.hashed_value_of_file
@@ -212,6 +254,9 @@ class Client:
         return response
 
 
-if '__name__' == '__main__':
-    addr = str(input('Indicate the address to start the client (ip:port)\n'))
+if __name__ == '__main__':
+    addr = str(input(
+        'Indicate the address to start the client (ip:port) or just indicate the port number to start on local\n'))
+    if ':' not in addr:
+        addr = 'localhost:' + addr
     Client(addr).start()

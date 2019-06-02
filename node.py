@@ -5,6 +5,8 @@ import threading
 from concurrent import futures
 import chord_service_pb2
 import chord_service_pb2_grpc
+import p2p_service_pb2
+import p2p_service_pb2_grpc
 from logging import Logger, StreamHandler, Formatter
 from fix_finger import FixFinger
 from stabilize import Stabilize
@@ -32,6 +34,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.checker = Checker(self)
         self.storage = dict() # key:[len, seq_num, [addrs]] seq_num increases by 1 everytime update
         self.storage_lock = threading.Lock()
+        self.tracker_addr = TRACKER_ADDR
         self.run()
 
     def set_log(self):
@@ -237,10 +240,33 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
                     self.update_storage(notify_res)
+                    self.add_chord_node_to_tracker()
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
             except Exception:
                 self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
+
+    def add_chord_node_to_tracker(self):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.AddChordNodeRequest(addr=self.successor[1])
+            try:
+                response = stub.rpc_add_chord_node(request)
+                if response.result == -1:
+                    print('[notify tracker add node failed] nodeId{} add_chord_node_to_tracker new nodeId{} failed'.format(self.id, self.successor[0]))
+            except Exception:
+                self.logger.error("Node#{} rpc error when add node{} to tracker".format(self.id, self.successor[0]))
+
+    def remove_chord_node_from_tracker(self):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.RemoveChordNodeRequest(addr=self.successor[1]) # current successor is the leaved node
+            try:
+                response = stub.rpc_remove_chord_node(request)
+                if response.result == -1:
+                    print('[notify tracker remove node failed] nodeId{} remove_chord_node_from_tracker removed nodeId{} failed'.format(self.id, self.successor[0]))
+            except Exception:
+                self.logger.error("Node#{} rpc error when remove node{} from tracker".format(self.id, self.successor[0]))
 
     # RPC
     def notify_at_join(self, request, context):
