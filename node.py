@@ -114,6 +114,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         # fetch the missing data from predecessor
         # TODO: try the asynchonized fetch using background thread or another thread
+        print('the number of data to be fetched:{}'.format(len(data_to_fetch)))
         ret = self.fetch_data_from_predecessor(data_to_fetch)
         return chord_service_pb2.CheckResponse(result=ret)
 
@@ -339,6 +340,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def update_storage(self, notify_res, len_bias=0):
         if notify_res.pairs is None:
             return
+
+        print('data to be updated in storage:{}'.format(str(notify_res.pairs)))
 
         for pair in notify_res.pairs:
             with self.storage_lock:
