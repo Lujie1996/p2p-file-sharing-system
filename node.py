@@ -76,6 +76,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 get_request = self.get_get_request(data_to_fetch)
                 res = stub.get(get_request)
                 if res.result == 0:
+                    # reuse function with same logic
                     self.update_storage_at_join(res)
         except Exception as e:
             print("[Fetch Failed] #{} when fetching data from node {}".format(self.id, self.predecessor[0]))
