@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package p2pService;
+
+service P2P {
+	rpc rpc_register_file(RegisterFileRequest) returns (RegisterFileResponse) {}
+    rpc rpc_look_up_file(LookUpFileRequest) returns (LookUpFileResponse) {}
+    rpc rpc_download(DownloadRequest) returns (DownloadResponse) {}
+}
+
+message RegisterFileRequest {
+	string filename = 1;
+	string hashed_value_of_file = 2;
+}
+
+message RegisterFileResponse {
+    int32 result = 1;
+    string entrance_addr = 2;
+}
+
+message LookUpFileRequest {
+    string filename = 1;
+}
+
+message LookUpFileResponse {
+    int32 result = 1;
+    string hashed_value_of_file = 2;
+    string entrance_addr = 3;
+}
+
+message DownloadRequest {
+    string hashed_value_of_file = 1;
+}
+
+message DownloadResponse {
+    int32 result = 1;
+    string file = 2;
+}
