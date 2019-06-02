@@ -14,6 +14,7 @@ class Client:
     def __init__(self, addr):
         self.addr = addr
         self.tracker_addr = utils.TRACKER_ADDR
+        self.entrance_addr = ''
         self.local_files = dict()  # hashed_value_of_file -> file; note: the stored file is of type: byte
 
     def start(self):
@@ -28,6 +29,12 @@ class Client:
                 self.download(filename)
             else:
                 return
+
+    def put(self, hashed_value_of_file, fileholder_addr):
+        pass
+
+    def get(self, hashed_value_of_file):
+        pass
 
     def upload(self, filename):
         try:
@@ -57,19 +64,13 @@ class Client:
 
         # step2: Tracker gives fileholder the addr of a node in Chord (as the entrance of Chord)
         #  this is piggybacked in the return of RPC register_file
-        entrance_addr = response.entrance_addr
+        self.entrance_addr = response.entrance_addr
 
         # step3: Fileholder put(hashed_value_of_file, fileholder_addr) to Chord
-        with grpc.insecure_channel(entrance_addr) as channel:
-            stub = chord_service_pb2_grpc.ChordStub(channel)
-            request = chord_service_pb2.ClientPutRequest(hashed_value_of_file=hashed_value_of_file, fileholder_addr=self.addr)
-            try:
-                response = stub.rpc_client_put(request, timeout=20)
-                # response: {int32 result: 0 for failed, 1 for succeeded;}
-            except Exception:
-                print("RPC failed")
-                return
-        if response.result == 0:
+        result = self.put(hashed_value_of_file=hashed_value_of_file, fileholder_addr=self.addr)
+        # response: {int32 result: 0 for failed, 1 for succeeded;}
+
+        if result == 0:
             print('Failed while putting local address to Chord')
             return
 
@@ -99,20 +100,14 @@ class Client:
         entrance_addr = response.entrance_addr
 
         # step2: Client contacts the entrance, get a list of fileholder_addr
-        with grpc.insecure_channel(entrance_addr) as channel:
-            stub = chord_service_pb2_grpc.ChordStub(channel)
-            request = chord_service_pb2.ClientGetRequest(hashed_value_of_file=hashed_value_of_file)
-            try:
-                response = stub.rpc_client_get(request, timeout=20)
-                # response: {int32 result: 0 for failed, 1 for succeeded; repeated Address addr_list}
-            except Exception:
-                print("RPC failed")
-                return
-        if response.result == 0:
+        result, addr_list = self.get(hashed_value_of_file=hashed_value_of_file)
+        # response: {int32 result: 0 for failed, 1 for succeeded; repeated Address addr_list}
+
+        if result == 0:
             print('Failed while getting fileholder\'s addresses from Chord')
             return
         addr_list = list()
-        for addr in response.addr_list:
+        for addr in addr_list:
             addr_list.append(addr)
 
         # Client picks one addr randomly and contacts it to download.
