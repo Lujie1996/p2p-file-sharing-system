@@ -18,6 +18,8 @@ def find_offset(initial, final):
 def get_hash_value(s):
     hash = hashlib.sha1()
     hash.update(str(s).encode())
+    print(hash.hexdigest())
+    print(type(hash.hexdigest()))
     # print('hash value of {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
     return int(hash.hexdigest(), 16) % (2 ** M)
 
@@ -40,3 +42,11 @@ def get_unique_addr_list(n):
         if hashed not in unique:
             unique[hashed] = addr
     return list(unique.values())
+
+
+def parse_config():
+    config = dict()
+    config['interval_upper_bound'] = 4
+    config['interval_lower_bound'] = 2
+    config['M'] = 5
+    return config
