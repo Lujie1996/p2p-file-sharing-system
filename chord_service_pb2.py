@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chordService',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x17\n\x15GetPredecessorRequest\"2\n\x16GetPredecessorResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"4\n\rNotifyRequest\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\" \n\x0eNotifyResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"\x19\n\x17GetConfigurationRequest\"\xbc\x01\n\x18GetConfigurationResponse\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x13\n\x0bsuccessorId\x18\x02 \x01(\x05\x12;\n\x05table\x18\x03 \x03(\x0b\x32,.chordService.GetConfigurationResponse.Entry\x1a\x37\n\x05\x45ntry\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0csuccessor_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t2\xf1\x02\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x12^\n\x0fget_predecessor\x12#.chordService.GetPredecessorRequest\x1a$.chordService.GetPredecessorResponse\"\x00\x12\x45\n\x06notify\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x12\x64\n\x11get_configuration\x12%.chordService.GetConfigurationRequest\x1a&.chordService.GetConfigurationResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x17\n\x15GetPredecessorRequest\"2\n\x16GetPredecessorResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"4\n\rNotifyRequest\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\" \n\x0eNotifyResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"\x19\n\x17GetConfigurationRequest\"\xbc\x01\n\x18GetConfigurationResponse\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x13\n\x0bsuccessorId\x18\x02 \x01(\x05\x12;\n\x05table\x18\x03 \x03(\x0b\x32,.chordService.GetConfigurationResponse.Entry\x1a\x37\n\x05\x45ntry\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0csuccessor_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04keys\x18\x01 \x03(\t\"/\n\x04Pair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0b\n\x03len\x18\x02 \x01(\x05\x12\r\n\x05\x61\x64\x64rs\x18\x03 \x03(\t\"@\n\x0bGetResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12!\n\x05pairs\x18\x02 \x03(\x0b\x32\x12.chordService.Pair\"B\n\x07OnePair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0b\n\x03len\x18\x02 \x01(\x05\x12\x0f\n\x07seq_num\x18\x03 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x04 \x01(\t\"2\n\nPutRequest\x12$\n\x05pairs\x18\x01 \x03(\x0b\x32\x15.chordService.OnePair\"\x1d\n\x0bPutResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"4\n\x0c\x43heckRequest\x12$\n\x05pairs\x18\x01 \x03(\x0b\x32\x15.chordService.OnePair\"\x1f\n\rCheckResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\xed\x03\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x12^\n\x0fget_predecessor\x12#.chordService.GetPredecessorRequest\x1a$.chordService.GetPredecessorResponse\"\x00\x12\x45\n\x06notify\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x12\x64\n\x11get_configuration\x12%.chordService.GetConfigurationRequest\x1a&.chordService.GetConfigurationResponse\"\x00\x12<\n\x03get\x12\x18.chordService.GetRequest\x1a\x19.chordService.GetResponse\"\x00\x12<\n\x03put\x12\x18.chordService.PutRequest\x1a\x19.chordService.PutResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -351,8 +351,301 @@ _GETCONFIGURATIONRESPONSE = _descriptor.Descriptor(
   serialized_end=548,
 )
 
+
+_GETREQUEST = _descriptor.Descriptor(
+  name='GetRequest',
+  full_name='chordService.GetRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='keys', full_name='chordService.GetRequest.keys', index=0,
+      number=1, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=550,
+  serialized_end=576,
+)
+
+
+_PAIR = _descriptor.Descriptor(
+  name='Pair',
+  full_name='chordService.Pair',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='chordService.Pair.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='len', full_name='chordService.Pair.len', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='addrs', full_name='chordService.Pair.addrs', index=2,
+      number=3, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=578,
+  serialized_end=625,
+)
+
+
+_GETRESPONSE = _descriptor.Descriptor(
+  name='GetResponse',
+  full_name='chordService.GetResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='result', full_name='chordService.GetResponse.result', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='pairs', full_name='chordService.GetResponse.pairs', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=627,
+  serialized_end=691,
+)
+
+
+_ONEPAIR = _descriptor.Descriptor(
+  name='OnePair',
+  full_name='chordService.OnePair',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='chordService.OnePair.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='len', full_name='chordService.OnePair.len', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='seq_num', full_name='chordService.OnePair.seq_num', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='addr', full_name='chordService.OnePair.addr', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=693,
+  serialized_end=759,
+)
+
+
+_PUTREQUEST = _descriptor.Descriptor(
+  name='PutRequest',
+  full_name='chordService.PutRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='pairs', full_name='chordService.PutRequest.pairs', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=761,
+  serialized_end=811,
+)
+
+
+_PUTRESPONSE = _descriptor.Descriptor(
+  name='PutResponse',
+  full_name='chordService.PutResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='result', full_name='chordService.PutResponse.result', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=813,
+  serialized_end=842,
+)
+
+
+_CHECKREQUEST = _descriptor.Descriptor(
+  name='CheckRequest',
+  full_name='chordService.CheckRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='pairs', full_name='chordService.CheckRequest.pairs', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=844,
+  serialized_end=896,
+)
+
+
+_CHECKRESPONSE = _descriptor.Descriptor(
+  name='CheckResponse',
+  full_name='chordService.CheckResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='result', full_name='chordService.CheckResponse.result', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=898,
+  serialized_end=929,
+)
+
 _GETCONFIGURATIONRESPONSE_ENTRY.containing_type = _GETCONFIGURATIONRESPONSE
 _GETCONFIGURATIONRESPONSE.fields_by_name['table'].message_type = _GETCONFIGURATIONRESPONSE_ENTRY
+_GETRESPONSE.fields_by_name['pairs'].message_type = _PAIR
+_PUTREQUEST.fields_by_name['pairs'].message_type = _ONEPAIR
+_CHECKREQUEST.fields_by_name['pairs'].message_type = _ONEPAIR
 DESCRIPTOR.message_types_by_name['FindSuccessorRequest'] = _FINDSUCCESSORREQUEST
 DESCRIPTOR.message_types_by_name['FindSuccessorResponse'] = _FINDSUCCESSORRESPONSE
 DESCRIPTOR.message_types_by_name['GetPredecessorRequest'] = _GETPREDECESSORREQUEST
@@ -361,6 +654,14 @@ DESCRIPTOR.message_types_by_name['NotifyRequest'] = _NOTIFYREQUEST
 DESCRIPTOR.message_types_by_name['NotifyResponse'] = _NOTIFYRESPONSE
 DESCRIPTOR.message_types_by_name['GetConfigurationRequest'] = _GETCONFIGURATIONREQUEST
 DESCRIPTOR.message_types_by_name['GetConfigurationResponse'] = _GETCONFIGURATIONRESPONSE
+DESCRIPTOR.message_types_by_name['GetRequest'] = _GETREQUEST
+DESCRIPTOR.message_types_by_name['Pair'] = _PAIR
+DESCRIPTOR.message_types_by_name['GetResponse'] = _GETRESPONSE
+DESCRIPTOR.message_types_by_name['OnePair'] = _ONEPAIR
+DESCRIPTOR.message_types_by_name['PutRequest'] = _PUTREQUEST
+DESCRIPTOR.message_types_by_name['PutResponse'] = _PUTRESPONSE
+DESCRIPTOR.message_types_by_name['CheckRequest'] = _CHECKREQUEST
+DESCRIPTOR.message_types_by_name['CheckResponse'] = _CHECKRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 FindSuccessorRequest = _reflection.GeneratedProtocolMessageType('FindSuccessorRequest', (_message.Message,), dict(
@@ -427,6 +728,62 @@ GetConfigurationResponse = _reflection.GeneratedProtocolMessageType('GetConfigur
 _sym_db.RegisterMessage(GetConfigurationResponse)
 _sym_db.RegisterMessage(GetConfigurationResponse.Entry)
 
+GetRequest = _reflection.GeneratedProtocolMessageType('GetRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETREQUEST,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.GetRequest)
+  ))
+_sym_db.RegisterMessage(GetRequest)
+
+Pair = _reflection.GeneratedProtocolMessageType('Pair', (_message.Message,), dict(
+  DESCRIPTOR = _PAIR,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.Pair)
+  ))
+_sym_db.RegisterMessage(Pair)
+
+GetResponse = _reflection.GeneratedProtocolMessageType('GetResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETRESPONSE,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.GetResponse)
+  ))
+_sym_db.RegisterMessage(GetResponse)
+
+OnePair = _reflection.GeneratedProtocolMessageType('OnePair', (_message.Message,), dict(
+  DESCRIPTOR = _ONEPAIR,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.OnePair)
+  ))
+_sym_db.RegisterMessage(OnePair)
+
+PutRequest = _reflection.GeneratedProtocolMessageType('PutRequest', (_message.Message,), dict(
+  DESCRIPTOR = _PUTREQUEST,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.PutRequest)
+  ))
+_sym_db.RegisterMessage(PutRequest)
+
+PutResponse = _reflection.GeneratedProtocolMessageType('PutResponse', (_message.Message,), dict(
+  DESCRIPTOR = _PUTRESPONSE,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.PutResponse)
+  ))
+_sym_db.RegisterMessage(PutResponse)
+
+CheckRequest = _reflection.GeneratedProtocolMessageType('CheckRequest', (_message.Message,), dict(
+  DESCRIPTOR = _CHECKREQUEST,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.CheckRequest)
+  ))
+_sym_db.RegisterMessage(CheckRequest)
+
+CheckResponse = _reflection.GeneratedProtocolMessageType('CheckResponse', (_message.Message,), dict(
+  DESCRIPTOR = _CHECKRESPONSE,
+  __module__ = 'chord_service_pb2'
+  # @@protoc_insertion_point(class_scope:chordService.CheckResponse)
+  ))
+_sym_db.RegisterMessage(CheckResponse)
+
 
 
 _CHORD = _descriptor.ServiceDescriptor(
@@ -435,8 +792,8 @@ _CHORD = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=551,
-  serialized_end=920,
+  serialized_start=932,
+  serialized_end=1425,
   methods=[
   _descriptor.MethodDescriptor(
     name='find_successor',
@@ -472,6 +829,24 @@ _CHORD = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_GETCONFIGURATIONREQUEST,
     output_type=_GETCONFIGURATIONRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='get',
+    full_name='chordService.Chord.get',
+    index=4,
+    containing_service=None,
+    input_type=_GETREQUEST,
+    output_type=_GETRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='put',
+    full_name='chordService.Chord.put',
+    index=5,
+    containing_service=None,
+    input_type=_PUTREQUEST,
+    output_type=_PUTRESPONSE,
     serialized_options=None,
   ),
 ])

@@ -6,8 +6,9 @@ service Chord {
 	rpc find_successor(FindSuccessorRequest) returns (FindSuccessorResponse) {}
 	rpc get_predecessor(GetPredecessorRequest) returns (GetPredecessorResponse) {}
 	rpc notify(NotifyRequest) returns (NotifyResponse) {}
-
 	rpc get_configuration (GetConfigurationRequest) returns (GetConfigurationResponse) {}
+	rpc get (GetRequest) returns (GetResponse) {}
+	rpc put (PutRequest) returns (PutResponse) {}
 }
 
 message FindSuccessorRequest {
@@ -54,3 +55,40 @@ message GetConfigurationResponse {
 	repeated Entry table = 3;
 }
 
+message GetRequest {
+   repeated string keys = 1;
+}
+
+message Pair {
+        string key = 1;
+        int32 len = 2;
+        repeated string addrs = 3;
+}
+
+message GetResponse {
+    int32 result = 1;
+    repeated Pair pairs = 2;
+}
+
+message OnePair {
+    string key = 1;
+    int32 len = 2;
+    int32 seq_num = 3;
+    string addr = 4;
+}
+
+message PutRequest {
+    repeated OnePair pairs = 1;
+}
+
+message PutResponse {
+   int32 result = 1;
+}
+
+message CheckRequest {
+   repeated OnePair pairs = 1;
+}
+
+message CheckResponse {
+   int32 result = 1;
+}
