@@ -125,6 +125,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 continue
             vals = self.storage[key]
             pair.key = key
+            pair.seq_num = vals[1]
             for addr in vals[2]:
                 pair.addrs.append(addr)
         return get_res
