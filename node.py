@@ -240,16 +240,16 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
                     self.update_storage(notify_res)
-                    self.add_chord_node_to_tracker()
+                    self.add_chord_node_to_tracker(self.successor[1])
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
             except Exception:
                 self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
 
-    def add_chord_node_to_tracker(self):
+    def add_chord_node_to_tracker(self, add_addr):
         with grpc.insecure_channel(self.tracker_addr) as channel:
             stub = p2p_service_pb2_grpc.P2PStub(channel)
-            request = p2p_service_pb2.AddChordNodeRequest(addr=self.successor[1])
+            request = p2p_service_pb2.AddChordNodeRequest(addr=add_addr)
             try:
                 response = stub.rpc_add_chord_node(request)
                 if response.result == -1:
@@ -257,10 +257,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             except Exception:
                 self.logger.error("Node#{} rpc error when add node{} to tracker".format(self.id, self.successor[0]))
 
-    def remove_chord_node_from_tracker(self):
+    def remove_chord_node_from_tracker(self, remove_addr):
         with grpc.insecure_channel(self.tracker_addr) as channel:
             stub = p2p_service_pb2_grpc.P2PStub(channel)
-            request = p2p_service_pb2.RemoveChordNodeRequest(addr=self.successor[1]) # current successor is the leaved node
+            request = p2p_service_pb2.RemoveChordNodeRequest(addr=remove_addr) # current successor is the leaved node
             try:
                 response = stub.rpc_remove_chord_node(request)
                 if response.result == -1:
@@ -350,6 +350,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     def initialize_with_node_info(self):
         self.init_finger_table()
+        self.add_chord_node_to_tracker(self.addr)
         if self.initial_id_addr_map is None:
             return
         node_identifiers = sorted(self.initial_id_addr_map.keys())
