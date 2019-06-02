@@ -24,6 +24,7 @@ def get_node_configuration(addr):
                 print('nodeId:{}  |   predecessorId:{}  |  successorId:{}'.format(get_hash_value(addr), response.predecessorId, response.successorId))
                 for entry in response.table:
                     print('{} -> [{}, {}]'.format(entry.id, entry.successor_id, entry.addr))
+                print(response.storage)
             except Exception as e:
                 print(e)
 

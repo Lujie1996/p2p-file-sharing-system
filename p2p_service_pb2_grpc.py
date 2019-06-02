@@ -41,8 +41,13 @@ class P2PStub(object):
         )
     self.rpc_get_debug = channel.unary_unary(
         '/p2pService.P2P/rpc_get_debug',
-        request_serializer=p2p__service__pb2.GetDeubgRequest.SerializeToString,
-        response_deserializer=p2p__service__pb2.GetDeubgResponse.FromString,
+        request_serializer=p2p__service__pb2.GetDebugRequest.SerializeToString,
+        response_deserializer=p2p__service__pb2.GetDebugResponse.FromString,
+        )
+    self.rpc_get_entrance = channel.unary_unary(
+        '/p2pService.P2P/rpc_get_entrance',
+        request_serializer=p2p__service__pb2.GetEntranceRequest.SerializeToString,
+        response_deserializer=p2p__service__pb2.GetEntranceResponse.FromString,
         )
 
 
@@ -92,6 +97,13 @@ class P2PServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def rpc_get_entrance(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_P2PServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -122,8 +134,13 @@ def add_P2PServicer_to_server(servicer, server):
       ),
       'rpc_get_debug': grpc.unary_unary_rpc_method_handler(
           servicer.rpc_get_debug,
-          request_deserializer=p2p__service__pb2.GetDeubgRequest.FromString,
-          response_serializer=p2p__service__pb2.GetDeubgResponse.SerializeToString,
+          request_deserializer=p2p__service__pb2.GetDebugRequest.FromString,
+          response_serializer=p2p__service__pb2.GetDebugResponse.SerializeToString,
+      ),
+      'rpc_get_entrance': grpc.unary_unary_rpc_method_handler(
+          servicer.rpc_get_entrance,
+          request_deserializer=p2p__service__pb2.GetEntranceRequest.FromString,
+          response_serializer=p2p__service__pb2.GetEntranceResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='p2pService',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x11p2p_service.proto\x12\np2pService\"E\n\x13RegisterFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\"=\n\x14RegisterFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x15\n\rentrance_addr\x18\x02 \x01(\t\"%\n\x11LookUpFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"Y\n\x12LookUpFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\x12\x15\n\rentrance_addr\x18\x03 \x01(\t\"/\n\x0f\x44ownloadRequest\x12\x1c\n\x14hashed_value_of_file\x18\x01 \x01(\t\"0\n\x10\x44ownloadResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ile\x18\x02 \x01(\t\"#\n\x13\x41\x64\x64\x43hordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\"&\n\x14\x41\x64\x64\x43hordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"&\n\x16RemoveChordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\")\n\x17RemoveChordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"\x11\n\x0fGetDeubgRequest\"&\n\x10GetDeubgResponse\x12\x12\n\ndebug_info\x18\x01 \x01(\t2\x8e\x04\n\x03P2P\x12X\n\x11rpc_register_file\x12\x1f.p2pService.RegisterFileRequest\x1a .p2pService.RegisterFileResponse\"\x00\x12S\n\x10rpc_look_up_file\x12\x1d.p2pService.LookUpFileRequest\x1a\x1e.p2pService.LookUpFileResponse\"\x00\x12K\n\x0crpc_download\x12\x1b.p2pService.DownloadRequest\x1a\x1c.p2pService.DownloadResponse\"\x00\x12Y\n\x12rpc_add_chord_node\x12\x1f.p2pService.AddChordNodeRequest\x1a .p2pService.AddChordNodeResponse\"\x00\x12\x62\n\x15rpc_remove_chord_node\x12\".p2pService.RemoveChordNodeRequest\x1a#.p2pService.RemoveChordNodeResponse\"\x00\x12L\n\rrpc_get_debug\x12\x1b.p2pService.GetDeubgRequest\x1a\x1c.p2pService.GetDeubgResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x11p2p_service.proto\x12\np2pService\"E\n\x13RegisterFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\"=\n\x14RegisterFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x15\n\rentrance_addr\x18\x02 \x01(\t\"%\n\x11LookUpFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"Y\n\x12LookUpFileResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x1c\n\x14hashed_value_of_file\x18\x02 \x01(\t\x12\x15\n\rentrance_addr\x18\x03 \x01(\t\"/\n\x0f\x44ownloadRequest\x12\x1c\n\x14hashed_value_of_file\x18\x01 \x01(\t\"0\n\x10\x44ownloadResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12\x0c\n\x04\x66ile\x18\x02 \x01(\t\"#\n\x13\x41\x64\x64\x43hordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\"&\n\x14\x41\x64\x64\x43hordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"&\n\x16RemoveChordNodeRequest\x12\x0c\n\x04\x61\x64\x64r\x18\x01 \x01(\t\")\n\x17RemoveChordNodeResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"\x11\n\x0fGetDebugRequest\"&\n\x10GetDebugResponse\x12\x12\n\ndebug_info\x18\x01 \x01(\t\"\x14\n\x12GetEntranceRequest\",\n\x13GetEntranceResponse\x12\x15\n\rentrance_addr\x18\x01 \x01(\t2\xe5\x04\n\x03P2P\x12X\n\x11rpc_register_file\x12\x1f.p2pService.RegisterFileRequest\x1a .p2pService.RegisterFileResponse\"\x00\x12S\n\x10rpc_look_up_file\x12\x1d.p2pService.LookUpFileRequest\x1a\x1e.p2pService.LookUpFileResponse\"\x00\x12K\n\x0crpc_download\x12\x1b.p2pService.DownloadRequest\x1a\x1c.p2pService.DownloadResponse\"\x00\x12Y\n\x12rpc_add_chord_node\x12\x1f.p2pService.AddChordNodeRequest\x1a .p2pService.AddChordNodeResponse\"\x00\x12\x62\n\x15rpc_remove_chord_node\x12\".p2pService.RemoveChordNodeRequest\x1a#.p2pService.RemoveChordNodeResponse\"\x00\x12L\n\rrpc_get_debug\x12\x1b.p2pService.GetDebugRequest\x1a\x1c.p2pService.GetDebugResponse\"\x00\x12U\n\x10rpc_get_entrance\x12\x1e.p2pService.GetEntranceRequest\x1a\x1f.p2pService.GetEntranceResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -370,9 +370,9 @@ _REMOVECHORDNODERESPONSE = _descriptor.Descriptor(
 )
 
 
-_GETDEUBGREQUEST = _descriptor.Descriptor(
-  name='GetDeubgRequest',
-  full_name='p2pService.GetDeubgRequest',
+_GETDEBUGREQUEST = _descriptor.Descriptor(
+  name='GetDebugRequest',
+  full_name='p2pService.GetDebugRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -394,15 +394,15 @@ _GETDEUBGREQUEST = _descriptor.Descriptor(
 )
 
 
-_GETDEUBGRESPONSE = _descriptor.Descriptor(
-  name='GetDeubgResponse',
-  full_name='p2pService.GetDeubgResponse',
+_GETDEBUGRESPONSE = _descriptor.Descriptor(
+  name='GetDebugResponse',
+  full_name='p2pService.GetDebugResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='debug_info', full_name='p2pService.GetDeubgResponse.debug_info', index=0,
+      name='debug_info', full_name='p2pService.GetDebugResponse.debug_info', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -424,6 +424,61 @@ _GETDEUBGRESPONSE = _descriptor.Descriptor(
   serialized_end=613,
 )
 
+
+_GETENTRANCEREQUEST = _descriptor.Descriptor(
+  name='GetEntranceRequest',
+  full_name='p2pService.GetEntranceRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=615,
+  serialized_end=635,
+)
+
+
+_GETENTRANCERESPONSE = _descriptor.Descriptor(
+  name='GetEntranceResponse',
+  full_name='p2pService.GetEntranceResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='entrance_addr', full_name='p2pService.GetEntranceResponse.entrance_addr', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=637,
+  serialized_end=681,
+)
+
 DESCRIPTOR.message_types_by_name['RegisterFileRequest'] = _REGISTERFILEREQUEST
 DESCRIPTOR.message_types_by_name['RegisterFileResponse'] = _REGISTERFILERESPONSE
 DESCRIPTOR.message_types_by_name['LookUpFileRequest'] = _LOOKUPFILEREQUEST
@@ -434,8 +489,10 @@ DESCRIPTOR.message_types_by_name['AddChordNodeRequest'] = _ADDCHORDNODEREQUEST
 DESCRIPTOR.message_types_by_name['AddChordNodeResponse'] = _ADDCHORDNODERESPONSE
 DESCRIPTOR.message_types_by_name['RemoveChordNodeRequest'] = _REMOVECHORDNODEREQUEST
 DESCRIPTOR.message_types_by_name['RemoveChordNodeResponse'] = _REMOVECHORDNODERESPONSE
-DESCRIPTOR.message_types_by_name['GetDeubgRequest'] = _GETDEUBGREQUEST
-DESCRIPTOR.message_types_by_name['GetDeubgResponse'] = _GETDEUBGRESPONSE
+DESCRIPTOR.message_types_by_name['GetDebugRequest'] = _GETDEBUGREQUEST
+DESCRIPTOR.message_types_by_name['GetDebugResponse'] = _GETDEBUGRESPONSE
+DESCRIPTOR.message_types_by_name['GetEntranceRequest'] = _GETENTRANCEREQUEST
+DESCRIPTOR.message_types_by_name['GetEntranceResponse'] = _GETENTRANCERESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RegisterFileRequest = _reflection.GeneratedProtocolMessageType('RegisterFileRequest', (_message.Message,), dict(
@@ -508,19 +565,33 @@ RemoveChordNodeResponse = _reflection.GeneratedProtocolMessageType('RemoveChordN
   ))
 _sym_db.RegisterMessage(RemoveChordNodeResponse)
 
-GetDeubgRequest = _reflection.GeneratedProtocolMessageType('GetDeubgRequest', (_message.Message,), dict(
-  DESCRIPTOR = _GETDEUBGREQUEST,
+GetDebugRequest = _reflection.GeneratedProtocolMessageType('GetDebugRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETDEBUGREQUEST,
   __module__ = 'p2p_service_pb2'
-  # @@protoc_insertion_point(class_scope:p2pService.GetDeubgRequest)
+  # @@protoc_insertion_point(class_scope:p2pService.GetDebugRequest)
   ))
-_sym_db.RegisterMessage(GetDeubgRequest)
+_sym_db.RegisterMessage(GetDebugRequest)
 
-GetDeubgResponse = _reflection.GeneratedProtocolMessageType('GetDeubgResponse', (_message.Message,), dict(
-  DESCRIPTOR = _GETDEUBGRESPONSE,
+GetDebugResponse = _reflection.GeneratedProtocolMessageType('GetDebugResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETDEBUGRESPONSE,
   __module__ = 'p2p_service_pb2'
-  # @@protoc_insertion_point(class_scope:p2pService.GetDeubgResponse)
+  # @@protoc_insertion_point(class_scope:p2pService.GetDebugResponse)
   ))
-_sym_db.RegisterMessage(GetDeubgResponse)
+_sym_db.RegisterMessage(GetDebugResponse)
+
+GetEntranceRequest = _reflection.GeneratedProtocolMessageType('GetEntranceRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETENTRANCEREQUEST,
+  __module__ = 'p2p_service_pb2'
+  # @@protoc_insertion_point(class_scope:p2pService.GetEntranceRequest)
+  ))
+_sym_db.RegisterMessage(GetEntranceRequest)
+
+GetEntranceResponse = _reflection.GeneratedProtocolMessageType('GetEntranceResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETENTRANCERESPONSE,
+  __module__ = 'p2p_service_pb2'
+  # @@protoc_insertion_point(class_scope:p2pService.GetEntranceResponse)
+  ))
+_sym_db.RegisterMessage(GetEntranceResponse)
 
 
 
@@ -530,8 +601,8 @@ _P2P = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=616,
-  serialized_end=1142,
+  serialized_start=684,
+  serialized_end=1297,
   methods=[
   _descriptor.MethodDescriptor(
     name='rpc_register_file',
@@ -583,8 +654,17 @@ _P2P = _descriptor.ServiceDescriptor(
     full_name='p2pService.P2P.rpc_get_debug',
     index=5,
     containing_service=None,
-    input_type=_GETDEUBGREQUEST,
-    output_type=_GETDEUBGRESPONSE,
+    input_type=_GETDEBUGREQUEST,
+    output_type=_GETDEBUGRESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='rpc_get_entrance',
+    full_name='p2pService.P2P.rpc_get_entrance',
+    index=6,
+    containing_service=None,
+    input_type=_GETENTRANCEREQUEST,
+    output_type=_GETENTRANCERESPONSE,
     serialized_options=None,
   ),
 ])
