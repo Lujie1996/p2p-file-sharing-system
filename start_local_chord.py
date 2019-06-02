@@ -1,6 +1,9 @@
 from node import LocalChordCluster, serve_join
 from utils import *
 import tracker
+import threading
+import time
+
 
 def start_chord():
     input_str = str(input('Specify N to initialize the system with N nodes, or type \'j\' to join an existing system\n'))
@@ -19,7 +22,11 @@ def start_chord():
         print('Node has started at {} connected to {}'.format(local_addr, dest_addr))
     else:
         # start tracker server
-        tracker.start_server(TRACKER_ADDR)
+        tracker_server = threading.Thread(target=tracker.start_server, args=(TRACKER_ADDR,))
+        tracker_server.start()
+
+        time.sleep(1)
+        print('Starting chord nodes...')
 
         number_of_nodes = int(input_str)
         if number_of_nodes <= 0:

@@ -26,7 +26,7 @@ class Client:
                                 '4 for get\n'
                                 '5 for debug\n'
                                 'or any other input to exit\n'))
-            print('------------------------------------')
+            print('------------------------------------\n')
             if command == '1':
                 filename = str(input('Filename:\n'))
                 # upload file
@@ -63,11 +63,13 @@ class Client:
     def put(self, hashed_value_of_file, fileholder_addr):
         # return 0 for succeeded, -1 for failed
 
+        self.check_and_fill_entrance()
         # step1: find_successor(hashed_value_of_file)
         result, successor_addr = self.find_successor(hashed_value_of_file)
         if result == -1:
             return -1
 
+        print('find_successor return: {}, {}'.format(result, successor_addr))
         # step2: put the (hashed_value_of_file, fileholder_addr) to addr_to_put
         with grpc.insecure_channel(successor_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
@@ -78,7 +80,7 @@ class Client:
             try:
                 response = stub.put(req, timeout=20)
             except Exception:
-                print("RPC failed")
+                print("RPC failed from put()")
                 return -1
         if response.result == -1:
             return -1
@@ -88,6 +90,7 @@ class Client:
     def get(self, hashed_value_of_file):
         # return {int result: 0 for succeeded, -1 for failed; list<string> addr_list}
 
+        self.check_and_fill_entrance()
         # step1: find_successor(hashed_value_of_file)
         result, successor_addr = self.find_successor(hashed_value_of_file)
         if result == -1:
@@ -101,7 +104,7 @@ class Client:
             try:
                 response = stub.get(req, timeout=20)
             except Exception:
-                print("RPC failed")
+                print("RPC failed from get()")
                 return -1, list()
         if response.result == -1:
             return -1, list()
@@ -114,15 +117,31 @@ class Client:
     def find_successor(self, hashed_value_of_file):
         # return: {int result: -1 for failed, 0 for succeeded; string successor_addr}
         key = int(hashed_value_of_file, 16) % (2 ** utils.M)
+        print('key is: {}'.format(key))
+        print('entrance_addr: {}'.format(self.entrance_addr))
         with grpc.insecure_channel(self.entrance_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
             request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=1)
             try:
                 response = stub.find_successor(request, timeout=20)
             except Exception:
-                print("RPC failed")
+                print("RPC failed from find_successor()")
                 return -1, ''
         return 0, response.addr
+
+    def check_and_fill_entrance(self):
+        if self.entrance_addr:
+            return
+
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.GetEntranceRequest()
+            try:
+                response = stub.rpc_get_entrance(request, timeout=20)
+            except Exception:
+                print("RPC failed from check_and_fill_entrance()")
+                return -1, list()
+        self.entrance_addr = response.entrance_addr
 
     def upload(self, filename):
         try:
@@ -229,7 +248,7 @@ class Client:
     def show_debug_info(self):
         with grpc.insecure_channel(self.tracker_addr) as channel:
             stub = p2p_service_pb2_grpc.P2PStub(channel)
-            request = p2p_service_pb2.GetDeubgRequest()
+            request = p2p_service_pb2.GetDebugRequest()
             try:
                 response = stub.rpc_get_debug(request, timeout=20)
             except Exception:

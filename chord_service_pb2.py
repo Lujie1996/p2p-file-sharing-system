@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='chordService',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x17\n\x15GetPredecessorRequest\"2\n\x16GetPredecessorResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"4\n\rNotifyRequest\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"@\n\x04Pair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0b\n\x03len\x18\x02 \x01(\x05\x12\x0f\n\x07seq_num\x18\x03 \x01(\x05\x12\r\n\x05\x61\x64\x64rs\x18\x04 \x03(\t\"C\n\x0eNotifyResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12!\n\x05pairs\x18\x02 \x03(\x0b\x32\x12.chordService.Pair\"\x19\n\x17GetConfigurationRequest\"\xbc\x01\n\x18GetConfigurationResponse\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x13\n\x0bsuccessorId\x18\x02 \x01(\x05\x12;\n\x05table\x18\x03 \x03(\x0b\x32,.chordService.GetConfigurationResponse.Entry\x1a\x37\n\x05\x45ntry\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0csuccessor_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04keys\x18\x01 \x03(\t\"@\n\x0bGetResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12!\n\x05pairs\x18\x02 \x03(\x0b\x32\x12.chordService.Pair\"/\n\nPutRequest\x12!\n\x05pairs\x18\x01 \x03(\x0b\x32\x12.chordService.Pair\"\x1d\n\x0bPutResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"1\n\x0c\x43heckRequest\x12!\n\x05pairs\x18\x01 \x03(\x0b\x32\x12.chordService.Pair\"\x1f\n\rCheckResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\x89\x05\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x12^\n\x0fget_predecessor\x12#.chordService.GetPredecessorRequest\x1a$.chordService.GetPredecessorResponse\"\x00\x12\x64\n\x11get_configuration\x12%.chordService.GetConfigurationRequest\x1a&.chordService.GetConfigurationResponse\"\x00\x12M\n\x0enotify_at_join\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x12N\n\x0fnotify_at_leave\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x12<\n\x03get\x12\x18.chordService.GetRequest\x1a\x19.chordService.GetResponse\"\x00\x12<\n\x03put\x12\x18.chordService.PutRequest\x1a\x19.chordService.PutResponse\"\x00\x12\x42\n\x05\x63heck\x12\x1a.chordService.CheckRequest\x1a\x1b.chordService.CheckResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x13\x63hord_service.proto\x12\x0c\x63hordService\"3\n\x14\x46indSuccessorRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\"K\n\x15\x46indSuccessorResponse\x12\x13\n\x0bsuccessorId\x18\x01 \x01(\x05\x12\x0f\n\x07pathlen\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x17\n\x15GetPredecessorRequest\"2\n\x16GetPredecessorResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"4\n\rNotifyRequest\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x02 \x01(\t\"@\n\x04Pair\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0b\n\x03len\x18\x02 \x01(\x05\x12\x0f\n\x07seq_num\x18\x03 \x01(\x05\x12\r\n\x05\x61\x64\x64rs\x18\x04 \x03(\t\"C\n\x0eNotifyResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12!\n\x05pairs\x18\x02 \x03(\x0b\x32\x12.chordService.Pair\"\x19\n\x17GetConfigurationRequest\"\xcd\x01\n\x18GetConfigurationResponse\x12\x15\n\rpredecessorId\x18\x01 \x01(\x05\x12\x13\n\x0bsuccessorId\x18\x02 \x01(\x05\x12;\n\x05table\x18\x03 \x03(\x0b\x32,.chordService.GetConfigurationResponse.Entry\x12\x0f\n\x07storage\x18\x04 \x01(\t\x1a\x37\n\x05\x45ntry\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0csuccessor_id\x18\x02 \x01(\x05\x12\x0c\n\x04\x61\x64\x64r\x18\x03 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04keys\x18\x01 \x03(\t\"@\n\x0bGetResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x12!\n\x05pairs\x18\x02 \x03(\x0b\x32\x12.chordService.Pair\"/\n\nPutRequest\x12!\n\x05pairs\x18\x01 \x03(\x0b\x32\x12.chordService.Pair\"\x1d\n\x0bPutResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\"1\n\x0c\x43heckRequest\x12!\n\x05pairs\x18\x01 \x03(\x0b\x32\x12.chordService.Pair\"\x1f\n\rCheckResponse\x12\x0e\n\x06result\x18\x01 \x01(\x05\x32\x89\x05\n\x05\x43hord\x12[\n\x0e\x66ind_successor\x12\".chordService.FindSuccessorRequest\x1a#.chordService.FindSuccessorResponse\"\x00\x12^\n\x0fget_predecessor\x12#.chordService.GetPredecessorRequest\x1a$.chordService.GetPredecessorResponse\"\x00\x12\x64\n\x11get_configuration\x12%.chordService.GetConfigurationRequest\x1a&.chordService.GetConfigurationResponse\"\x00\x12M\n\x0enotify_at_join\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x12N\n\x0fnotify_at_leave\x12\x1b.chordService.NotifyRequest\x1a\x1c.chordService.NotifyResponse\"\x00\x12<\n\x03get\x12\x18.chordService.GetRequest\x1a\x19.chordService.GetResponse\"\x00\x12<\n\x03put\x12\x18.chordService.PutRequest\x1a\x19.chordService.PutResponse\"\x00\x12\x42\n\x05\x63heck\x12\x1a.chordService.CheckRequest\x1a\x1b.chordService.CheckResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -362,8 +362,8 @@ _GETCONFIGURATIONRESPONSE_ENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=594,
-  serialized_end=649,
+  serialized_start=611,
+  serialized_end=666,
 )
 
 _GETCONFIGURATIONRESPONSE = _descriptor.Descriptor(
@@ -394,6 +394,13 @@ _GETCONFIGURATIONRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='storage', full_name='chordService.GetConfigurationResponse.storage', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -407,7 +414,7 @@ _GETCONFIGURATIONRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=461,
-  serialized_end=649,
+  serialized_end=666,
 )
 
 
@@ -437,8 +444,8 @@ _GETREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=651,
-  serialized_end=677,
+  serialized_start=668,
+  serialized_end=694,
 )
 
 
@@ -475,8 +482,8 @@ _GETRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=679,
-  serialized_end=743,
+  serialized_start=696,
+  serialized_end=760,
 )
 
 
@@ -506,8 +513,8 @@ _PUTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=745,
-  serialized_end=792,
+  serialized_start=762,
+  serialized_end=809,
 )
 
 
@@ -537,8 +544,8 @@ _PUTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=794,
-  serialized_end=823,
+  serialized_start=811,
+  serialized_end=840,
 )
 
 
@@ -568,8 +575,8 @@ _CHECKREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=825,
-  serialized_end=874,
+  serialized_start=842,
+  serialized_end=891,
 )
 
 
@@ -599,8 +606,8 @@ _CHECKRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=876,
-  serialized_end=907,
+  serialized_start=893,
+  serialized_end=924,
 )
 
 _NOTIFYRESPONSE.fields_by_name['pairs'].message_type = _PAIR
@@ -747,8 +754,8 @@ _CHORD = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=910,
-  serialized_end=1559,
+  serialized_start=927,
+  serialized_end=1576,
   methods=[
   _descriptor.MethodDescriptor(
     name='find_successor',

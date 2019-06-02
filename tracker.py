@@ -63,14 +63,22 @@ class Tracker(p2p_service_pb2_grpc.P2PServicer):
 
     def rpc_get_debug(self, request, context):
         # request is empty
-        # return GetDeubgResponse {
+        # return GetDebugResponse {
         #   string ret, contains self.storage and self.chord_nodes
         # }
         ret = 'Storage: '
         ret += str(self.storage)
         ret += '\nChord nodes: '
         ret += str(self.chord_nodes)
-        return p2p_service_pb2.GetDeubgResponse(debug_info=ret)
+        return p2p_service_pb2.GetDebugResponse(debug_info=ret)
+
+    def rpc_get_entrance(self, request, context):
+        # request is empty
+        # return GetEntranceResponse {
+        #   string entrance_addr
+        # }
+        entrance_addr = random.choice(list(self.chord_nodes))
+        return p2p_service_pb2.GetEntranceResponse(entrance_addr=entrance_addr)
 
 
 def start_server(addr):

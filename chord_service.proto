@@ -66,6 +66,7 @@ message GetConfigurationResponse {
 		string addr = 3;
 	}
 	repeated Entry table = 3;
+    string storage = 4;
 }
 
 message GetRequest {

@@ -102,14 +102,13 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         for one_pair in request.pairs:
             # currently addr is not set in the request
             key = one_pair.key
-            local_len = self.storage[key][0]
             if key not in self.storage or one_pair.seq_num != self.storage[key][1]:
                 data_to_fetch.append(key)
             elif one_pair.len == 0:
                 # delete current tail key
                 with self.storage_lock:
                     self.storage.pop(key)
-            elif local_len != one_pair.len:
+            elif self.storage[key][0] != one_pair.len:
                 with self.storage_lock:
                     self.storage[key][0] = one_pair.len
 
@@ -140,9 +139,11 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def put(self, request, context):
         # RPC for putting (key,values) to current nodes
         # here we only store in the first node and then check() thread will periodically replicate data to the replicaiton chain
-        if not request.pairs is None:
+
+        if request.pairs is None:
             return chord_service_pb2.PutResponse(result=0)
 
+        print('pairs received at put(): {}'.format(str(request.pairs)))
         for pair in request.pairs:
             # TODO: ADD LOCK TO EACH KEY and exception process
             if pair.key not in self.storage:
@@ -473,6 +474,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 stub.check(check_request)
             except Exception as e:
+                print(str(e))
                 print('[check] #{} check_local() failed at RPC'.format(self.id))
                 #return -1, -1
 
@@ -545,6 +547,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             entry.id = int(e[0])
             entry.successor_id = int(e[1][0])
             entry.addr = str(e[1][1])
+        response.storage = str(self.storage)
         return response
 
 
