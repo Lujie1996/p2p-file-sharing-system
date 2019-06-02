@@ -1,8 +1,6 @@
 import sys
 import grpc
 import time
-import random
-import hashlib
 import threading
 from concurrent import futures
 import chord_service_pb2
@@ -79,7 +77,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 res = stub.get(get_request)
                 if res.result == 0:
                     # reuse function with same logic
-                    self.update_storage_at_join(res)
+                    self.update_storage(res, -1)
         except Exception as e:
             print("[Fetch Failed] #{} when fetching data from node {}".format(self.id, self.predecessor[0]))
             return -1
@@ -238,7 +236,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
-                    self.update_storage_at_join(notify_res)
+                    self.update_storage(notify_res)
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
             except Exception:
@@ -311,14 +309,14 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 to_pair.seq_num = value[1]
         return request
 
-    def update_storage_at_join(self, notify_res):
+    def update_storage(self, notify_res, len_bias=0):
         if not notify_res.HasField("pairs"):
             return
 
         for pair in notify_res.pairs:
             with self.storage_lock:
                 self.storage[pair.key] = list()
-                self.storage[pair.key].append(pair.len)
+                self.storage[pair.key].append(pair.len + len_bias)
                 self.storage[pair.key].append(pair.seq_num)
                 self.storage[pair.key].append(list())
                 for addr in pair.addrs:
