@@ -66,14 +66,15 @@ class Tracker(p2p_service_pb2_grpc.P2PServicer):
         # return GetDeubgResponse {
         #   string ret, contains self.storage and self.chord_nodes
         # }
-        ret = ''
+        ret = 'Storage: '
         ret += str(self.storage)
-        ret += '\n'
+        ret += '\nChord nodes: '
         ret += str(self.chord_nodes)
         return p2p_service_pb2.GetDeubgResponse(debug_info=ret)
 
 
 def start_server(addr):
+    print('Starting tracker server...')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
     p2p_service_pb2_grpc.add_P2PServicer_to_server(Tracker(addr), server)
 
@@ -87,9 +88,10 @@ def start_server(addr):
         while True:
             time.sleep(_ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
+        print('Exiting...')
         server.stop(0)
 
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     addr = utils.TRACKER_ADDR
     start_server(addr)
