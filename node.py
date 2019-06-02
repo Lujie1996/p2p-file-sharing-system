@@ -102,11 +102,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             local_len = self.storage[key][0]
             if key not in self.storage or one_pair.seq_num != self.storage[key][1]:
                 data_to_fetch.append(key)
-            elif local_len == 0:
+            elif one_pair.len == 0:
                 # delete current tail key
                 self.storage.pop(key)
-            elif local_len < _R:
-                # local len is 1, 2, ..., _R - 1 then set the new len
+            elif local_len != one_pair.len:
                 self.storage[key][0] = one_pair.len
 
         # fetch the missing data from predecessor
