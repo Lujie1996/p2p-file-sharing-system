@@ -41,10 +41,12 @@ class Client:
         # step2: put the (hashed_value_of_file, fileholder_addr) to addr_to_put
         with grpc.insecure_channel(successor_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
-            request = chord_service_pb2.PutRequest()
-            # TODO: create a request
+            req = chord_service_pb2.PutRequest()
+            pair = req.pairs.add()
+            pair.key = hashed_value_of_file
+            pair.addrs.append(fileholder_addr)
             try:
-                response = stub.put(request, timeout=20)
+                response = stub.put(req, timeout=20)
             except Exception:
                 print("RPC failed")
                 return -1
@@ -64,18 +66,19 @@ class Client:
         # step2: get addr_list from Chord
         with grpc.insecure_channel(successor_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
-            request = chord_service_pb2.GetRequest()
-            # TODO: create a request
+            req = chord_service_pb2.GetRequest()
+            req.keys.append(hashed_value_of_file)
             try:
-                response = stub.get(request, timeout=20)
+                response = stub.get(req, timeout=20)
             except Exception:
                 print("RPC failed")
                 return -1
         if response.result == -1:
             return -1, list()
 
-        # TODO: extract the response to addr_list
         addr_list = list()
+        for addr in response.pairs[0].addrs:
+            addr_list.append(addr)
         return 0, addr_list
 
     def find_successor(self, key):

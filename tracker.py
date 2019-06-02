@@ -1,12 +1,9 @@
-import sys
 import grpc
 import time
 import random
-import hashlib
-import threading
 from concurrent import futures
-import chord_service_pb2
-import chord_service_pb2_grpc
+import p2p_service_pb2_grpc
+import p2p_service_pb2
 import utils
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
