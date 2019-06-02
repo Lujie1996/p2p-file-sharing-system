@@ -6,6 +6,8 @@ service P2P {
 	rpc rpc_register_file(RegisterFileRequest) returns (RegisterFileResponse) {}
     rpc rpc_look_up_file(LookUpFileRequest) returns (LookUpFileResponse) {}
     rpc rpc_download(DownloadRequest) returns (DownloadResponse) {}
+    rpc rpc_add_chord_node(AddChordNodeRequest) returns (AddChordNodeResponse) {}
+    rpc rpc_remove_chord_node(RemoveChordNodeRequest) returns (RemoveChordNodeResponse) {}
 }
 
 message RegisterFileRequest {
@@ -35,4 +37,20 @@ message DownloadRequest {
 message DownloadResponse {
     int32 result = 1;
     string file = 2;
+}
+
+message AddChordNodeRequest {
+    string addr = 1;
+}
+
+message AddChordNodeResponse {
+    int32 result = 1;
+}
+
+message RemoveChordNodeRequest {
+    string addr = 1;
+}
+
+message RemoveChordNodeResponse {
+    int32 result = 1;
 }
