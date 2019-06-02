@@ -5,6 +5,8 @@ import threading
 from concurrent import futures
 import chord_service_pb2
 import chord_service_pb2_grpc
+import p2p_service_pb2
+import p2p_service_pb2_grpc
 from logging import Logger, StreamHandler, Formatter
 from fix_finger import FixFinger
 from stabilize import Stabilize
@@ -32,6 +34,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         self.checker = Checker(self)
         self.storage = dict() # key:[len, seq_num, [addrs]] seq_num increases by 1 everytime update
         self.storage_lock = threading.Lock()
+        self.tracker_addr = TRACKER_ADDR
         self.run()
 
     def set_log(self):
@@ -89,7 +92,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # RPC called by predecessor to check and update all replicate data and delete extra replicas
         # TODO: (important) make sure the check process is done after notify when joining in,
         # so that the predecessor points to right node
-        if not request.HasField('pairs'):
+        if request.pairs is None:
             return chord_service_pb2.CheckResponse(result=0)
 
         if not self.predecessor:
@@ -137,7 +140,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def put(self, request, context):
         # RPC for putting (key,values) to current nodes
         # here we only store in the first node and then check() thread will periodically replicate data to the replicaiton chain
-        if not request.HasField("pairs"):
+        if not request.pairs is None:
             return chord_service_pb2.PutResponse(result=0)
 
         for pair in request.pairs:
@@ -237,10 +240,33 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
                     self.update_storage(notify_res)
+                    self.add_chord_node_to_tracker(self.successor[1])
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
             except Exception:
                 self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
+
+    def add_chord_node_to_tracker(self, add_addr):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.AddChordNodeRequest(addr=add_addr)
+            try:
+                response = stub.rpc_add_chord_node(request)
+                if response.result == -1:
+                    print('[notify tracker add node failed] nodeId{} add_chord_node_to_tracker new nodeId{} failed'.format(self.id, self.successor[0]))
+            except Exception:
+                self.logger.error("Node#{} rpc error when add node{} to tracker".format(self.id, self.successor[0]))
+
+    def remove_chord_node_from_tracker(self, remove_addr):
+        with grpc.insecure_channel(self.tracker_addr) as channel:
+            stub = p2p_service_pb2_grpc.P2PStub(channel)
+            request = p2p_service_pb2.RemoveChordNodeRequest(addr=remove_addr) # current successor is the leaved node
+            try:
+                response = stub.rpc_remove_chord_node(request)
+                if response.result == -1:
+                    print('[notify tracker remove node failed] nodeId{} remove_chord_node_from_tracker removed nodeId{} failed'.format(self.id, self.successor[0]))
+            except Exception:
+                self.logger.error("Node#{} rpc error when remove node{} from tracker".format(self.id, self.successor[0]))
 
     # RPC
     def notify_at_join(self, request, context):
@@ -310,7 +336,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return request
 
     def update_storage(self, notify_res, len_bias=0):
-        if not notify_res.HasField("pairs"):
+        if notify_res.pairs is None:
             return
 
         for pair in notify_res.pairs:
@@ -324,6 +350,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     def initialize_with_node_info(self):
         self.init_finger_table()
+        self.add_chord_node_to_tracker(self.addr)
         if self.initial_id_addr_map is None:
             return
         node_identifiers = sorted(self.initial_id_addr_map.keys())
