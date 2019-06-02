@@ -73,6 +73,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return get_req
 
     def fetch_data_from_predecessor(self, data_to_fetch):
+        if len(data_to_fetch) == 0:
+            return 0
         try:
             with grpc.insecure_channel(self.predecessor[1]) as channel:
                 stub = chord_service_pb2_grpc.ChordStub(channel)
@@ -114,6 +116,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         # fetch the missing data from predecessor
         # TODO: try the asynchonized fetch using background thread or another thread
+        print("fetch data is {}".format(str(data_to_fetch)))
         ret = self.fetch_data_from_predecessor(data_to_fetch)
         return chord_service_pb2.CheckResponse(result=ret)
 
@@ -122,7 +125,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # RPC for getting values of multiple keys
         # storage : {key: [len, seq, [ip_addr]]}
         get_res = chord_service_pb2.GetResponse()
-        get_res.result = 1
+        get_res.result = 0
         for key in request.keys:
             pair = get_res.pairs.add()
             if key not in self.storage:
@@ -337,6 +340,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return request
 
     def update_storage(self, notify_res, len_bias=0):
+        print("[NOTIFY RESPONSE]: {}".format(str(notify_res)))
         if notify_res.pairs is None:
             return
 
