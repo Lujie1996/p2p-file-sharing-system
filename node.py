@@ -76,6 +76,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 get_request = self.get_get_request(data_to_fetch)
                 res = stub.get(get_request)
                 if res.result == 0:
+                    # reuse function with same logic
                     self.update_storage_at_join(res)
         except Exception as e:
             print("[Fetch Failed] #{} when fetching data from node {}".format(self.id, self.predecessor[0]))
@@ -101,11 +102,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             local_len = self.storage[key][0]
             if key not in self.storage or one_pair.seq_num != self.storage[key][1]:
                 data_to_fetch.append(key)
-            elif local_len == 0:
+            elif one_pair.len == 0:
                 # delete current tail key
                 self.storage.pop(key)
-            elif local_len < _R:
-                # local len is 1, 2, ..., _R - 1 then set the new len
+            elif local_len != one_pair.len:
                 self.storage[key][0] = one_pair.len
 
         # fetch the missing data from predecessor
@@ -125,6 +125,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 continue
             vals = self.storage[key]
             pair.key = key
+            pair.seq_num = vals[1]
             for addr in vals[2]:
                 pair.addrs.append(addr)
         return get_res
