@@ -18,9 +18,10 @@ def find_offset(initial, final):
 def get_hash_value(s):
     hash = hashlib.sha1()
     hash.update(str(s).encode())
-    print(hash.hexdigest())
-    print(type(hash.hexdigest()))
-    # print('hash value of {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
+    if PRINT:
+        print(hash.hexdigest())
+        print(type(hash.hexdigest()))
+        print('hash value of {} is: {}'.format(s, int(hash.hexdigest(), 16) % (2 ** M)))
     return int(hash.hexdigest(), 16) % (2 ** M)
 
 
