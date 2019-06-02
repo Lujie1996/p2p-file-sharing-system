@@ -142,13 +142,22 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             # TODO: ADD LOCK TO EACH KEY and exception process
             if pair.key not in self.storage:
                 # initial the values for the key. [len, seq, [ip_addr]]
-                self.storage[pair.key] = [_R, 1, [pair.addr]]
+                self.storage[pair.key] = list()
+                self.storage[pair.key].append(_R)
+                self.storage[pair.key].append(1)
+                self.storage[pair.key].append(list())
+                for addr in pair.addrs:
+                    self.storage[pair.key][2].append(addr)
             else:
                 # add current ip to the addr
                 addr_list = self.storage[pair.key][2]
-                if pair.addr not in addr_list:
+                is_change = False
+                for addr in pair.addrs:
+                    if addr not in addr_list:
+                        addr_list.append(addr)
+                        is_change = True
+                if is_change:
                     self.storage[pair.key][1] = self.storage[pair.key][1] + 1
-                    addr_list.append(pair.addr)
 
         return chord_service_pb2.PutResponse(result=0)
 
