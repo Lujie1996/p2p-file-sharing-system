@@ -89,7 +89,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # RPC called by predecessor to check and update all replicate data and delete extra replicas
         # TODO: (important) make sure the check process is done after notify when joining in,
         # so that the predecessor points to right node
-        if not request.HasField('pairs'):
+        if request.pairs is None:
             return chord_service_pb2.CheckResponse(result=0)
 
         if not self.predecessor:
@@ -137,7 +137,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def put(self, request, context):
         # RPC for putting (key,values) to current nodes
         # here we only store in the first node and then check() thread will periodically replicate data to the replicaiton chain
-        if not request.HasField("pairs"):
+        if not request.pairs is None:
             return chord_service_pb2.PutResponse(result=0)
 
         for pair in request.pairs:
@@ -310,7 +310,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return request
 
     def update_storage(self, notify_res, len_bias=0):
-        if not notify_res.HasField("pairs"):
+        if notify_res.pairs is None:
             return
 
         for pair in notify_res.pairs:
