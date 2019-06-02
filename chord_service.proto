@@ -53,14 +53,6 @@ message NotifyResponse {
     repeated Pair pairs = 2;
 }
 
-message CheckRequest {
-    repeated Pair pairs = 1;
-}
-
-message CheckResponse {
-    int32 result = 1;
-}
-
 message GetConfigurationRequest {
 
 }
