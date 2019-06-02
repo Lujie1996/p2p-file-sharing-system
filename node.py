@@ -106,9 +106,11 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 data_to_fetch.append(key)
             elif one_pair.len == 0:
                 # delete current tail key
-                self.storage.pop(key)
+                with self.storage_lock:
+                    self.storage.pop(key)
             elif local_len != one_pair.len:
-                self.storage[key][0] = one_pair.len
+                with self.storage_lock:
+                    self.storage[key][0] = one_pair.len
 
         # fetch the missing data from predecessor
         # TODO: try the asynchonized fetch using background thread or another thread
@@ -127,6 +129,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 continue
             vals = self.storage[key]
             pair.key = key
+            pair.len = vals[0]
             pair.seq_num = vals[1]
             for addr in vals[2]:
                 pair.addrs.append(addr)
@@ -143,22 +146,25 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             # TODO: ADD LOCK TO EACH KEY and exception process
             if pair.key not in self.storage:
                 # initial the values for the key. [len, seq, [ip_addr]]
-                self.storage[pair.key] = list()
-                self.storage[pair.key].append(_R)
-                self.storage[pair.key].append(1)
-                self.storage[pair.key].append(list())
-                for addr in pair.addrs:
-                    self.storage[pair.key][2].append(addr)
+                with self.storage_lock:
+                    self.storage[pair.key] = list()
+                    self.storage[pair.key].append(_R)  # len
+                    self.storage[pair.key].append(1)   # seq_num
+                    self.storage[pair.key].append(list())  # addrs
+                    for addr in pair.addrs:
+                        self.storage[pair.key][2].append(addr)
             else:
                 # add current ip to the addr
-                addr_list = self.storage[pair.key][2]
+                #addr_list = self.storage[pair.key][2]
                 is_change = False
                 for addr in pair.addrs:
-                    if addr not in addr_list:
-                        addr_list.append(addr)
+                    if addr not in self.storage[pair.key][2]:
+                        with self.storage_lock:
+                            self.storage[pair.key][2].append(addr)
                         is_change = True
                 if is_change:
-                    self.storage[pair.key][1] = self.storage[pair.key][1] + 1
+                    with self.storage_lock:
+                        self.storage[pair.key][1] = self.storage[pair.key][1] + 1 # seq_num += 1
 
         return chord_service_pb2.PutResponse(result=0)
 
