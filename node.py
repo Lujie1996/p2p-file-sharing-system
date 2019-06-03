@@ -73,7 +73,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return get_req
 
     def fetch_data_from_predecessor(self, data_to_fetch):
-        print('nodeId{} fetches data from its predecessorId{}'.format(self.id, self.predecessor[0]))
+        # print('nodeId{} fetches data from its predecessorId{}'.format(self.id, self.predecessor[0]))
         if len(data_to_fetch) == 0:
             return 0
         try:
@@ -117,8 +117,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                     self.storage[key][0] = one_pair.len
 
         # fetch the missing data from predecessor
-        # TODO: try the asynchonized fetch using background thread or another thread
-        print('the number of data to be fetched:{}'.format(len(data_to_fetch)))
+        # TODO: try the asynchronous fetch using background thread or another thread
+        # print('the number of data to be fetched:{}'.format(len(data_to_fetch)))
         ret = self.fetch_data_from_predecessor(data_to_fetch)
         return chord_service_pb2.CheckResponse(result=ret)
 
@@ -143,7 +143,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     # RPC
     def put(self, request, context):
         # RPC for putting (key,values) to current nodes
-        # here we only store in the first node and then check() thread will periodically replicate data to the replicaiton chain
+        # here we only store in the first node and then check() thread will
+        # periodically replicate data to the replication chain
 
         if request.pairs is None:
             return chord_service_pb2.PutResponse(result=0)
@@ -162,7 +163,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                         self.storage[pair.key][2].append(addr)
             else:
                 # add current ip to the addr
-                #addr_list = self.storage[pair.key][2]
+                # addr_list = self.storage[pair.key][2]
                 is_change = False
                 for addr in pair.addrs:
                     if addr not in self.storage[pair.key][2]:
@@ -212,7 +213,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                 self.logger.info("(Node#{})Timeout error when find_successor to {}".format(self.id, self.contact_to))
 
     def join_in_chord_ring(self, response):
-        #print("get successor: {} when join in the ring".format(str(response)))
+        # print("get successor: {} when join in the ring".format(str(response)))
         self.set_successor(response.successorId, response.addr)
         print('join_in_chord_ring(): the successor is: {} at {}'.format(response.successorId, response.addr))
         # update the first entry in the finger table
@@ -226,7 +227,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 find_predecessor_res = stub.get_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
-                    self.predecessor = self.set_predecessor(find_predecessor_res.id, find_predecessor_res.addr)
+                    self.set_predecessor(find_predecessor_res.id, find_predecessor_res.addr)
                 print("get predecessor response is {}".format(str(find_predecessor_res)))
             except Exception as e: 
                 self.logger.error("%%%%%Node#{} error when find_predecessor to {}".format(self.id, response.addr))
@@ -247,10 +248,11 @@ class Node(chord_service_pb2_grpc.ChordServicer):
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
                     print('***notify_successor() invokes update_storage()function***')
                     self.update_storage(notify_res)
-                    self.add_chord_node_to_tracker(self.successor[1])
+                    self.add_chord_node_to_tracker(self.addr)
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
-            except Exception:
+            except Exception as e:
+                print(str(e))
                 self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
 
     def add_chord_node_to_tracker(self, add_addr):
@@ -279,36 +281,31 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def notify_at_join(self, request, context):
         print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
         if request is None or request.predecessorId is None:
-            print("1st if")
             return chord_service_pb2.NotifyResponse(result=-1)
 
         if self.predecessor is None:
-            print("2nd if")
             self.predecessor = (request.predecessorId, request.addr)
             response = self.generate_notify_response()
             return response
 
-        #predecessor_id_offset = find_offset(self.predecessor[0], self.id)
-        #request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
+        # predecessor_id_offset = find_offset(self.predecessor[0], self.id)
+        # request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
         self.predecessor = (request.predecessorId, request.addr)
         response = self.generate_notify_response()
         return response
 
-
     def notify_at_leave(self, request, context):
         print("node {} received notify to set predecessor to {}".format(self.id, request.predecessorId))
         if request is None or request.predecessorId is None:
-            print("1st if")
             return chord_service_pb2.NotifyResponse(result=-1)
 
         if self.predecessor is None:
-            print("2nd if")
-            self.predecessor = self.set_predecessor(request.predecessorId, request.addr)
+            self.set_predecessor(request.predecessorId, request.addr)
             return chord_service_pb2.NotifyResponse(result=0)
 
-        #predecessor_id_offset = find_offset(self.predecessor[0], self.id)
-        #request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
+        # predecessor_id_offset = find_offset(self.predecessor[0], self.id)
+        # request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
         self.predecessor = (request.predecessorId, request.addr)
         return chord_service_pb2.NotifyResponse(result=0)
@@ -316,12 +313,13 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     def generate_notify_response(self):
         response = chord_service_pb2.NotifyResponse()
         response.result = 0
-
         # TODO: traversing dictionary needs to be locked?
         for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
             if value[0] == 3:
-                successor_id, successor_addr = self.find_successor_local(key % (2 ** M))
-                if self.predecessor != successor_id:
+                # successor_id, successor_addr = self.find_successor_local(int(key, 16) % (2 ** M))
+                short_key = int(key, 16) % (2 ** M)
+                pre_self_offset = find_offset(self.predecessor[0], self.id)
+                if find_offset(short_key, self.id) < pre_self_offset:
                     continue
             to_pair = response.pairs.add()
             to_pair.key = key
@@ -329,7 +327,6 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             to_pair.seq_num = value[1]
             for addr in value[2]:
                 to_pair.addrs.append(addr)
-
         return response
 
     def generate_check_request(self):
@@ -343,7 +340,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         return request
 
     def update_storage(self, notify_res, len_bias=0):
-        #print("[NOTIFY RESPONSE]: {}".format(str(notify_res)))
+        # print("[NOTIFY RESPONSE]: {}".format(str(notify_res)))
         if notify_res.pairs is None:
             return
 
@@ -427,8 +424,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     # RPC
     def find_successor(self, request, context):
         # print("in find_successor---self.id:{}  self.addr:{}".format(self.id, self.addr))
-        #print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
-        #print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
+        # print('[Find successor] node #{} looks for id {}, length is {}'.format(self.id, request.id, request.pathlen))
+        # print('[Print Node] node #{} successor: {} predecessor:{}'.format(self.id, str(self.successor), str(self.predecessor)))
         # TODO: differentiate between 1. successor failed; 2. nodes in the path other than sucessor failed
         if request is None or request.id < 0 or request.pathlen < 0:
             return chord_service_pb2.FindSuccessorResponse(successorId=-1, pathlen=-1, addr=self.addr)
@@ -510,7 +507,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
                 if ith_finger_id == -1:
                     print('ERROR [node] {}, finger table is:{}'.format(self.id, str(self.finger_table)))
-                #print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
+                # print('node {} looks for the closest_preceding_node of {}, return {}'.format(self.id, id, str(ith_finger_id)))
                 return ith_finger_id, ith_finger_addr
 
         return self.finger_table[0][1]
@@ -549,8 +546,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
     # RPC
     def get_configuration(self, request, context):
         response = chord_service_pb2.GetConfigurationResponse()
+        print(self.predecessor, self.successor)
         response.predecessorId = self.predecessor[0]
         response.successorId = self.successor[0]
+        print(self.finger_table)
         for e in self.finger_table:
             entry = response.table.add()
             entry.id = int(e[0])
