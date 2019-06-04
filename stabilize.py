@@ -33,6 +33,7 @@ class Stabilize(Thread):
                 if PRINT:
                     print('ERROR [stabilize] #{}: get_successors_predecessor() failed. Successor itself has failed. Delete it.'
                       .format(self.node.id))
+                print('[remove from tracker]node{} to be removed from tracker'.format(self.node.successor[1]))
                 self.node.remove_chord_node_from_tracker(self.node.successor[1])
                 self.node.delete_successor()
                 self.node.notify_successor(type='leave')

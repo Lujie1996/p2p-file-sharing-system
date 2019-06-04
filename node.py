@@ -226,7 +226,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 find_predecessor_res = stub.get_predecessor(find_predecessor_req, timeout=20)
                 if find_predecessor_res is not None:
-                    self.predecessor = self.set_predecessor(find_predecessor_res.id, find_predecessor_res.addr)
+                    self.set_predecessor(find_predecessor_res.id, find_predecessor_res.addr)
                 print("get predecessor response is {}".format(str(find_predecessor_res)))
             except Exception as e: 
                 self.logger.error("%%%%%Node#{} error when find_predecessor to {}".format(self.id, response.addr))
@@ -245,12 +245,12 @@ class Node(chord_service_pb2_grpc.ChordServicer):
             try:
                 if type == 'join':
                     notify_res = stub.notify_at_join(notify_req, timeout=20)
-                    print('***notify_successor() invokes update_storage()function***')
                     self.update_storage(notify_res)
-                    self.add_chord_node_to_tracker(self.successor[1])
+                    self.add_chord_node_to_tracker(self.addr)
                 if type == 'leave':
                     notify_res = stub.notify_at_leave(notify_req, timeout=20)
-            except Exception:
+            except Exception as e:
+                print(str(e))
                 self.logger.error("Node#{} rpc error when notify to {}".format(self.id, self.successor[0]))
 
     def add_chord_node_to_tracker(self, add_addr):
@@ -320,8 +320,8 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # TODO: traversing dictionary needs to be locked?
         for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
             if value[0] == 3:
-                successor_id, successor_addr = self.find_successor_local(key % (2 ** M))
-                if self.predecessor != successor_id:
+                successor_id, successor_addr = self.find_successor_local(int(key,16) % (2 ** M))
+                if self.predecessor[0] != successor_id:
                     continue
             to_pair = response.pairs.add()
             to_pair.key = key
@@ -548,15 +548,22 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
     # RPC
     def get_configuration(self, request, context):
+        print("1111")
         response = chord_service_pb2.GetConfigurationResponse()
+        print("2222")
+        print('nodeId{} predecessorId:{}'.format(self.id, self.predecessor[0]))
         response.predecessorId = self.predecessor[0]
+        print("3333")
         response.successorId = self.successor[0]
+        print("4444")
         for e in self.finger_table:
             entry = response.table.add()
             entry.id = int(e[0])
             entry.successor_id = int(e[1][0])
             entry.addr = str(e[1][1])
+        print("5555")
         response.storage = str(self.storage)
+        print("6666")
         return response
 
 
