@@ -15,7 +15,7 @@ from utils import *
 
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
-_R = 3   
+_R = 4
 
 
 class Node(chord_service_pb2_grpc.ChordServicer):
@@ -119,7 +119,17 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         # fetch the missing data from predecessor
         # TODO: try the asynchronous fetch using background thread or another thread
         # print('the number of data to be fetched:{}'.format(len(data_to_fetch)))
+
+        if len(data_to_fetch) == 0:
+            return chord_service_pb2.CheckResponse(result=0)
+
         ret = self.fetch_data_from_predecessor(data_to_fetch)
+
+        """
+        if self.id == 16:
+            print('+++++++++++++++++++++++++++++++'+ str(self.id) + ':' + str(time.time()) + '++++++++++++++++++++++++++++++++')
+        """
+
         return chord_service_pb2.CheckResponse(result=ret)
 
     # RPC
@@ -148,6 +158,11 @@ class Node(chord_service_pb2_grpc.ChordServicer):
 
         if request.pairs is None:
             return chord_service_pb2.PutResponse(result=0)
+
+        """
+        if self.id == 11:
+            print('*******************************'+ str(self.id) + ':' + str(time.time()) + '*************************************')
+        """
 
         print('pairs received at put(): {}'.format(str(request.pairs)))
         for pair in request.pairs:
@@ -299,11 +314,10 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if request is None or request.predecessorId is None:
             return chord_service_pb2.NotifyResponse(result=-1)
 
-        for key, val in self.storage: #key:[len, seq_num, [addrs]]
-            if val[0] == 2:
-                val[0] = 3
-            elif val[1] == 1:
-                val[0] = 2
+        for key in self.storage: #key:[len, seq_num, [addrs]]
+            val = self.storage[key]
+            if val[0] != _R:
+                self.storage[key][0] = val[0] + 1
 
         if self.predecessor is None:
             self.set_predecessor(request.predecessorId, request.addr)
@@ -320,7 +334,7 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         response.result = 0
         # TODO: traversing dictionary needs to be locked?
         for key, value in self.storage.items():  # value = [len, seq_num, [addrs]]
-            if value[0] == 3:
+            if value[0] == _R:
                 # successor_id, successor_addr = self.find_successor_local(int(key, 16) % (2 ** M))
                 short_key = int(key, 16) % (2 ** M)
                 pre_self_offset = find_offset(self.predecessor[0], self.id)
@@ -604,7 +618,7 @@ def serve(addr, id_addr_map=None):
 
 def serve_join(addr, connect_to):
     print("starting rpc server: {}".format(addr))
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=20000))
     chord_service_pb2_grpc.add_ChordServicer_to_server(Node(addr, contact_to=connect_to), server)
 
     server.add_insecure_port(addr)
