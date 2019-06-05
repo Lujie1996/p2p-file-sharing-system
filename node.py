@@ -322,7 +322,6 @@ class Node(chord_service_pb2_grpc.ChordServicer):
         if self.predecessor is None:
             self.set_predecessor(request.predecessorId, request.addr)
             return chord_service_pb2.NotifyResponse(result=0)
-
         # predecessor_id_offset = find_offset(self.predecessor[0], self.id)
         # request_predecessor_id_offset = find_offset(request.predecessorId, self.id)
 
