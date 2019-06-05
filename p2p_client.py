@@ -1,10 +1,20 @@
 import grpc
 import random
+import time
+import threading
+from concurrent import futures
 import chord_service_pb2
 import chord_service_pb2_grpc
 import p2p_service_pb2
 import p2p_service_pb2_grpc
 import utils
+
+
+local_files = dict()
+# hashed_value_of_file -> file; note: the stored file is of type: byte
+# uploaded files are stored in self.local_files, only these files can  be downloaded by other peers
+
+_ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 
 class Client:
@@ -13,8 +23,7 @@ class Client:
         self.addr = addr
         self.tracker_addr = utils.TRACKER_ADDR
         self.entrance_addr = ''
-        self.local_files = dict()  # hashed_value_of_file -> file; note: the stored file is of type: byte
-        # uploaded files are stored in self.local_files, only these files can  be downloaded by other peers
+        self.file_server = None
 
     def start(self):
         while True:
@@ -33,8 +42,9 @@ class Client:
                 self.upload(filename)
             elif command == '2':
                 filename = str(input('Filename:\n'))
+                path = str(input('Path to save it:\n'))
                 # download file
-                self.download(filename)
+                self.download(filename, path)
             elif command == '3':
                 # put
                 s = str(input('Input key,value separated by \',\'\n'))
@@ -182,11 +192,17 @@ class Client:
             return
 
         # store this file into local memory storage
-        self.local_files[hashed_value_of_file] = file
+        global local_files
+        local_files[hashed_value_of_file] = file
+
+        if not self.file_server:
+            # start file server
+            server = threading.Thread(target=start_file_server, args=(self.addr,))
+            server.start()
 
         print('Upload succeeded!')
 
-    def download(self, filename):
+    def download(self, filename, path):
         # step1: Client contacts tracker with the filename it wants to obtain, tracker returns hashed_value_of_file,
         #        as well as a node in Chord (as the entrance of Chord)
         with grpc.insecure_channel(self.tracker_addr) as channel:
@@ -195,7 +211,7 @@ class Client:
             try:
                 response = stub.rpc_look_up_file(request, timeout=20)
             except Exception:
-                print("RPC failed")
+                print("RPC failed from download() position 1")
                 return
         if response.result == -1:
             print('Failed while looking up file on tracker')
@@ -220,24 +236,25 @@ class Client:
         # Client picks one addr randomly and contacts it to download.
         # This client can also register in Chord as a fileholder
         download_addr = random.choice(addr_list)
+        print('Chosen address of peer node: {}'.format(download_addr))
         with grpc.insecure_channel(download_addr) as channel:
             stub = p2p_service_pb2_grpc.P2PStub(channel)
             request = p2p_service_pb2.DownloadRequest(hashed_value_of_file=hashed_value_of_file)
             try:
                 response = stub.rpc_download(request, timeout=20)
                 # response: {int32 result: -1 for file not found, 0 for succeeded; string file}
-            except Exception:
-                print("RPC failed")
+            except Exception as e:
+                print("RPC failed from download() position 2")
+                print(e)
                 return -1
         if response.result == -1:
             print('File not found')
             return -1
         file = response.file
-        file = file.encode()  # string to bytes
 
         # write the file into local file
         try:
-            with open(filename, 'wb') as f:
+            with open(path + filename, 'wb') as f:
                 f.write(file)
         except Exception as e:
             print('Failed while storing the downloaded file to local')
@@ -252,9 +269,12 @@ class Client:
             try:
                 response = stub.rpc_get_debug(request, timeout=20)
             except Exception:
-                print("RPC failed")
+                print("RPC failed from show_debug_info()")
                 return
         print(response.debug_info)
+
+
+class FileServer(p2p_service_pb2_grpc.P2PServicer):
 
     #  peer node calls this.
     def rpc_download(self, request, context):
@@ -264,13 +284,33 @@ class Client:
         #   string file
         # }
         hashed_value_of_file = request.hashed_value_of_file
-        if hashed_value_of_file not in self.local_files:
+        global local_files
+        if hashed_value_of_file not in local_files:
             response = p2p_service_pb2.DownloadResponse(result=-1)
             return response
-        file = self.local_files[hashed_value_of_file]
-        file = file.decode()  # convert bytes to string
+
+        file = local_files[hashed_value_of_file]
         response = p2p_service_pb2.DownloadResponse(result=0, file=file)
         return response
+
+
+def start_file_server(addr):
+    print('Starting tracker server...')
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=200))
+    p2p_service_pb2_grpc.add_P2PServicer_to_server(FileServer(), server)
+
+    server.add_insecure_port(addr)
+    try:
+        server.start()
+    except Exception as e:
+        print('Server start failed!')
+        print(str(e))
+    try:
+        while True:
+            time.sleep(_ONE_DAY_IN_SECONDS)
+    except KeyboardInterrupt:
+        print('Exiting...')
+        server.stop(0)
 
 
 if __name__ == '__main__':

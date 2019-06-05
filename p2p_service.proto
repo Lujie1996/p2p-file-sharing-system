@@ -38,7 +38,7 @@ message DownloadRequest {
 
 message DownloadResponse {
     int32 result = 1;
-    string file = 2;
+    bytes file = 2;
 }
 
 message AddChordNodeRequest {
