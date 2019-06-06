@@ -131,7 +131,7 @@ class Client:
         print('entrance_addr: {}'.format(self.entrance_addr))
         with grpc.insecure_channel(self.entrance_addr) as channel:
             stub = chord_service_pb2_grpc.ChordStub(channel)
-            request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=1)
+            request = chord_service_pb2.FindSuccessorRequest(id=key, pathlen=0)
             try:
                 response = stub.find_successor(request, timeout=20)
             except Exception:
